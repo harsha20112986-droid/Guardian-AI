@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link2 } from "lucide-react";
-import axios from "axios";
+import api from "../api/api";
 
 import Dashboard from "../components/Dashboard";
 import RecentScans from "../components/RecentScans";
@@ -14,7 +14,7 @@ function UrlScanner() {
   // Load scan history
   const loadHistory = async () => {
     try {
-      const response = await axios.get("http://127.0.0.1:8000/history");
+     const response = await api.get("/history");
       setHistory(response.data);
     } catch (error) {
       console.error(error);
@@ -44,15 +44,12 @@ function UrlScanner() {
     setResult(null);
 
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/scan-url",
-        {
-          url: url,
-        }
-      );
+      const response = await api.post("/scan-url", {
+  url,
+});
 
       setResult(response.data);
-
+      setUrl("");
       // Refresh history after scan
       await loadHistory();
 
@@ -99,30 +96,54 @@ function UrlScanner() {
           </button>
 
           {result && (
-            <div className="mt-8 bg-slate-800 rounded-xl p-6">
+  <div className="mt-8 bg-slate-800 rounded-xl p-6 border border-slate-700">
+    <h2
+      className={`text-3xl font-bold ${
+        result.prediction === "Legitimate"
+          ? "text-green-400"
+          : "text-red-400"
+      }`}
+    >
+      {result.prediction}
+    </h2>
 
-              <h2
-                className={`text-3xl font-bold ${
-                  result.status === "Safe"
-                    ? "text-green-400"
-                    : result.status === "Suspicious"
-                    ? "text-yellow-400"
-                    : "text-red-400"
-                }`}
-              >
-                {result.status}
-              </h2>
+    <div className="mt-5 space-y-2 text-gray-300">
+      <p>
+        <span className="font-semibold text-white">Confidence:</span>{" "}
+        {result.confidence}%
+      </p>
 
-              <p className="mt-4 text-lg">
-                Risk Score: {result.risk_score}
-              </p>
+      <p>
+        <span className="font-semibold text-white">Rule Score:</span>{" "}
+        {result.rule_score}
+      </p>
 
-              <p className="mt-2 text-gray-300 break-all">
-                URL: {result.url}
-              </p>
+      <p>
+        <span className="font-semibold text-white">Risk Score:</span>{" "}
+        {result.final_score}%
+      </p>
 
-            </div>
-          )}
+      <p>
+        <span className="font-semibold text-white">Risk Level:</span>{" "}
+        {result.risk_level}
+      </p>
+    </div>
+
+    {result.reasons?.length > 0 && (
+      <>
+        <h3 className="mt-6 text-lg font-semibold text-white">
+          Detection Reasons
+        </h3>
+
+        <ul className="mt-2 list-disc list-inside text-gray-300 space-y-1">
+          {result.reasons.map((reason, index) => (
+            <li key={index}>{reason}</li>
+          ))}
+        </ul>
+      </>
+    )}
+  </div>
+)}
 
         </div>
 

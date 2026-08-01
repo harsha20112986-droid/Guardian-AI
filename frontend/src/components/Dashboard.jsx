@@ -4,11 +4,11 @@ function Dashboard({ history }) {
   const total = history.length;
 
   const safe = history.filter(
-    (item) => item.status === "Safe"
+    (item) => item.prediction === "Legitimate"
   ).length;
 
   const threats = history.filter(
-    (item) => item.status !== "Safe"
+    (item) => item.prediction === "Phishing"
   ).length;
 
   const averageRisk =
@@ -16,20 +16,18 @@ function Dashboard({ history }) {
       ? 0
       : Math.round(
           history.reduce(
-            (sum, item) => sum + item.risk_score,
+            (sum, item) => sum + (item.final_score || 0),
             0
           ) / total
         );
 
   return (
     <div>
-
       <h1 className="text-4xl font-bold mb-8">
         Guardian AI Dashboard
       </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-
         <StatCard
           title="Total Scans"
           value={total}
@@ -53,9 +51,7 @@ function Dashboard({ history }) {
           value={`${averageRisk}%`}
           color="text-yellow-400"
         />
-
       </div>
-
     </div>
   );
 }
