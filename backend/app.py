@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from routers.history import router as history_router
 from database import Base, engine
 from routers.url import router as url_router
+from routers.qr import router as qr_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -18,6 +19,7 @@ app.add_middleware(
 
 app.include_router(url_router)
 app.include_router(history_router)
+app.include_router(qr_router)
 
 @app.get("/")
 def home():
