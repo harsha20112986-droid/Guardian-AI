@@ -1,7 +1,11 @@
 import os
 from urllib.parse import urlparse
 
-import joblib
+try:
+    import joblib
+except ImportError:
+    raise ImportError("joblib is required to load the model. Install joblib package.")
+
 import pandas as pd
 
 from ml.feature_extractor import extract_features
