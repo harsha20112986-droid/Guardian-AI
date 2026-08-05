@@ -1,6 +1,5 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime
+from sqlalchemy import Column, Integer, String, Float, DateTime, Text
 from sqlalchemy.sql import func
-
 from database import Base
 
 
@@ -9,11 +8,23 @@ class ScanHistory(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    url = Column(String, nullable=False)
+    scan_type = Column(String, default="URL")   # URL / QR / SMS
+
+    content = Column(Text, nullable=False)      # URL or SMS text
+
     prediction = Column(String, nullable=False)
+
     confidence = Column(Float)
+
     rule_score = Column(Integer)
+
     final_score = Column(Float)
+
     risk_level = Column(String)
 
-    scanned_at = Column(DateTime(timezone=True), server_default=func.now())
+    reasons = Column(Text)                      # Detection reasons
+
+    scanned_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+    )

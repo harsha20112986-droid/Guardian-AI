@@ -1,6 +1,9 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 
+from services.sms_scanner import scan_sms
+
+
 router = APIRouter(
     prefix="/sms",
     tags=["SMS Scanner"]
@@ -12,13 +15,5 @@ class SMSRequest(BaseModel):
 
 
 @router.post("/scan")
-def scan_sms(request: SMSRequest):
-    return {
-        "message": request.message,
-        "prediction": "Safe",
-        "risk_level": "Low",
-        "score": 0,
-        "reasons": [
-            "SMS scanner is working."
-        ]
-    }
+def scan_sms_route(request: SMSRequest):
+    return scan_sms(request.message)
