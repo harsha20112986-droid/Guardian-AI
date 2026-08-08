@@ -1,18 +1,33 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime, Text
 from sqlalchemy.sql import func
+
 from database import Base
 
 
 class ScanHistory(Base):
     __tablename__ = "scan_history"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True,
+    )
 
-    scan_type = Column(String, default="URL")   # URL / QR / SMS
+    scan_type = Column(
+        String,
+        default="URL",
+        nullable=False,
+    )
 
-    content = Column(Text, nullable=False)      # URL or SMS text
+    content = Column(
+        Text,
+        nullable=False,
+    )
 
-    prediction = Column(String, nullable=False)
+    prediction = Column(
+        String,
+        nullable=False,
+    )
 
     confidence = Column(Float)
 
@@ -22,7 +37,7 @@ class ScanHistory(Base):
 
     risk_level = Column(String)
 
-    reasons = Column(Text)                      # Detection reasons
+    reasons = Column(Text)
 
     scanned_at = Column(
         DateTime(timezone=True),

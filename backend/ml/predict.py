@@ -1,11 +1,7 @@
 import os
 from urllib.parse import urlparse
 
-try:
-    import joblib
-except ImportError:
-    raise ImportError("joblib is required to load the model. Install joblib package.")
-
+import joblib
 import pandas as pd
 
 from ml.feature_extractor import extract_features
@@ -14,7 +10,11 @@ from ml.trusted_domains import TRUSTED_DOMAINS
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "saved_models", "phishing_model.pkl")
+MODEL_PATH = os.path.join(
+    BASE_DIR,
+    "saved_models",
+    "phishing_model.pkl",
+)
 
 model = joblib.load(MODEL_PATH)
 
@@ -39,7 +39,6 @@ def get_risk_level(score: float) -> str:
 
 
 def predict_url(url: str) -> dict:
-
     if is_trusted_domain(url):
         return {
             "url": url,
@@ -49,7 +48,9 @@ def predict_url(url: str) -> dict:
             "final_score": 0,
             "risk_level": "Low",
             "trusted_domain": True,
-            "reasons": ["Verified trusted domain."]
+            "reasons": [
+                "Verified trusted domain."
+            ],
         }
 
     rule_score, rule_reasons = calculate_rule_score(url)
@@ -58,13 +59,20 @@ def predict_url(url: str) -> dict:
 
     X = pd.DataFrame([features])
 
-    X = X.reindex(columns=model.feature_names_in_)
+    X = X.reindex(
+        columns=model.feature_names_in_
+    )
 
-    prediction = int(model.predict(X)[0])
+    prediction = int(
+        model.predict(X)[0]
+    )
 
     probabilities = model.predict_proba(X)[0]
 
-    confidence = round(float(max(probabilities) * 100), 2)
+    confidence = round(
+        float(max(probabilities) * 100),
+        2,
+    )
 
     prediction_text = (
         "Legitimate"
@@ -73,9 +81,16 @@ def predict_url(url: str) -> dict:
     )
 
     if prediction_text == "Phishing":
-        final_score = round((rule_score * 0.4) + (confidence * 0.6), 2)
+        final_score = round(
+            (rule_score * 0.4)
+            + (confidence * 0.6),
+            2,
+        )
     else:
-        final_score = round(rule_score * 0.4, 2)
+        final_score = round(
+            rule_score * 0.4,
+            2,
+        )
 
     return {
         "url": url,

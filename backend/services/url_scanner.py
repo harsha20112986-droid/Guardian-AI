@@ -1,3 +1,5 @@
+import json
+
 from sqlalchemy.orm import Session
 
 from ml.predict import predict_url
@@ -8,12 +10,14 @@ def scan_url(url: str, db: Session):
     result = predict_url(url)
 
     history = ScanHistory(
-        url=result["url"],
+        scan_type="URL",
+        content=result["url"],
         prediction=result["prediction"],
         confidence=result["confidence"],
         rule_score=result["rule_score"],
         final_score=result["final_score"],
         risk_level=result["risk_level"],
+        reasons=json.dumps(result.get("reasons", [])),
     )
 
     db.add(history)

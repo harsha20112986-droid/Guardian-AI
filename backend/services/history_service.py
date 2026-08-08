@@ -13,11 +13,13 @@ def get_history(db: Session) -> List[ScanHistory]:
     )
 
 
-def delete_history_item(history_id: int, db: Session) -> bool:
-    history = (
-        db.query(ScanHistory)
-        .filter(ScanHistory.id == history_id)
-        .first()
+def delete_history_item(
+    history_id: int,
+    db: Session,
+) -> bool:
+    history = db.get(
+        ScanHistory,
+        history_id,
     )
 
     if history is None:
@@ -30,5 +32,7 @@ def delete_history_item(history_id: int, db: Session) -> bool:
 
 
 def clear_history(db: Session) -> None:
-    db.query(ScanHistory).delete()
+    db.query(ScanHistory).delete(
+        synchronize_session=False
+    )
     db.commit()

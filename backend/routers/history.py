@@ -1,3 +1,5 @@
+from typing import cast
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -9,6 +11,7 @@ from services.history_service import (
     get_history,
 )
 
+
 router = APIRouter(
     prefix="/history",
     tags=["History"],
@@ -16,31 +19,39 @@ router = APIRouter(
 
 
 @router.get("/")
-def history(db: Session = Depends(get_db)):
+def history(
+    db: Session = Depends(get_db),
+):
     return get_history(db)
 
 
 @router.get("/stats")
-def get_stats(db: Session = Depends(get_db)):
-    history: list[ScanHistory] = get_history(db)
+def get_stats(
+    db: Session = Depends(get_db),
+):
+    history_items = get_history(db)
 
-    total = len(history)
+    total = len(history_items)
 
     safe = sum(
-        1 for item in history
-        if item.prediction == "Legitimate"
+        1
+        for item in history_items
+        if cast(str, item.prediction) == "Legitimate"
     )
 
     threats = sum(
-        1 for item in history
-        if item.prediction == "Phishing"
+        1
+        for item in history_items
+        if cast(str, item.prediction) == "Phishing"
+    )
+
+    total_risk = sum(
+        cast(float, item.final_score or 0)
+        for item in history_items
     )
 
     average_risk = (
-        round(
-            sum(item.final_score or 0 for item in history) / total,
-            2,
-        )
+        round(total_risk / total, 2)
         if total > 0
         else 0
     )
@@ -58,7 +69,10 @@ def delete_item(
     history_id: int,
     db: Session = Depends(get_db),
 ):
-    success = delete_history_item(history_id, db)
+    success = delete_history_item(
+        history_id,
+        db,
+    )
 
     if not success:
         raise HTTPException(
@@ -72,7 +86,9 @@ def delete_item(
 
 
 @router.delete("/")
-def delete_all(db: Session = Depends(get_db)):
+def delete_all(
+    db: Session = Depends(get_db),
+):
     clear_history(db)
 
     return {
