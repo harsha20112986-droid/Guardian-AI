@@ -1,174 +1,197 @@
-import { useState } from "react";
+import { Clock, ShieldCheck, ShieldAlert, Trash2 } from "lucide-react";
+import { toast } from "react-toastify";
 import api from "../api/api";
-import HistoryControls from "./HistoryControls";
 
-function RecentScans({ history }) {
-  const [search, setSearch] = useState("");
+function RecentScans({ history = [], onHistoryChange }) {
+  const safeHistory = Array.isArray(history) ? history : [];
 
-  // Search Filter
-  const filteredHistory = history.filter((item) =>
-    item.url.toLowerCase().includes(search.toLowerCase())
-  );
+  const deleteScan = async (id) => {
+    if (!id) {
+      return;
+    }
 
-  // Delete One Scan
-  const deleteHistoryItem = async (id) => {
     const confirmed = window.confirm(
       "Delete this scan from history?"
     );
 
-    if (!confirmed) return;
+    if (!confirmed) {
+      return;
+    }
 
     try {
       await api.delete(`/history/${id}`);
-      window.location.reload();
+
+      toast.success("Scan deleted successfully.");
+
+      if (onHistoryChange) {
+        onHistoryChange();
+      }
     } catch (error) {
       console.error(error);
-      alert("Failed to delete history.");
+
+      toast.error(
+        error.response?.data?.detail ||
+          "Failed to delete scan."
+      );
     }
   };
 
-  // Clear All History
-  const clearHistory = async () => {
-    const confirmed = window.confirm(
-      "Delete all scan history?"
-    );
+  if (safeHistory.length === 0) {
+    return (
+      <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+        <div className="flex items-center gap-3 mb-6">
+          <Clock
+            size={24}
+            className="text-emerald-400"
+          />
 
-    if (!confirmed) return;
+          <h2 className="text-2xl font-bold text-white">
+            Recent Scans
+          </h2>
+        </div>
 
-    try {
-      await api.delete("/history");
-      window.location.reload();
-    } catch (error) {
-      console.error(error);
-      alert("Failed to clear history.");
-    }
-  };
-
-  return (
-    <div className="mt-10">
-
-      <h2 className="text-2xl font-bold mb-6">
-        Recent Scans
-      </h2>
-
-      <HistoryControls
-        search={search}
-        setSearch={setSearch}
-        onClearHistory={clearHistory}
-        total={filteredHistory.length}
-      />
-
-      {filteredHistory.length === 0 ? (
-        <div className="bg-slate-800 rounded-xl p-6 text-center text-gray-400">
+        <div className="text-center py-10 text-gray-400">
           No scans found.
         </div>
-      ) : (
-        <div className="space-y-5">
+      </section>
+    );
+  }
 
-          {filteredHistory.map((item) => (
+  return (
+    <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
 
+      <div className="flex items-center gap-3 mb-6">
+        <Clock
+          size={24}
+          className="text-emerald-400"
+        />
+
+        <h2 className="text-2xl font-bold text-white">
+          Recent Scans
+        </h2>
+
+        <span className="ml-auto text-sm text-gray-400">
+          {safeHistory.length} Results
+        </span>
+      </div>
+
+      <div className="space-y-4">
+
+        {safeHistory.slice(0, 10).map((item, index) => {
+          const prediction = item?.prediction || "Unknown";
+          const content = item?.content || item?.url || "Unknown content";
+          const riskLevel = item?.risk_level || "Unknown";
+          const confidence = item?.confidence ?? 0;
+          const finalScore = item?.final_score ?? 0;
+
+          const normalizedPrediction = String(
+            prediction
+          ).toLowerCase();
+
+          const isSafe =
+            normalizedPrediction === "legitimate" ||
+            normalizedPrediction === "safe";
+
+          return (
             <div
-              key={item.id}
-              className="bg-slate-800 rounded-xl p-6 border border-slate-700"
+              key={item?.id || index}
+              className="bg-slate-800 border border-slate-700 rounded-xl p-5 hover:border-slate-600 transition"
             >
 
-              <div className="flex justify-between items-start">
+              <div className="flex flex-col lg:flex-row lg:items-center gap-5">
 
-                <div className="w-4/5">
+                <div className="flex-1 min-w-0">
 
-                  <p className="text-gray-400 text-sm">
-                    URL
-                  </p>
+                  <div className="flex items-start gap-3">
 
-                  <p className="break-all font-medium mt-1">
-                    {item.url}
-                  </p>
+                    {isSafe ? (
+                      <ShieldCheck
+                        size={24}
+                        className="text-green-400 flex-shrink-0 mt-1"
+                      />
+                    ) : (
+                      <ShieldAlert
+                        size={24}
+                        className="text-red-400 flex-shrink-0 mt-1"
+                      />
+                    )}
+
+                    <div className="min-w-0">
+
+                      <p className="text-white font-medium break-all">
+                        {content}
+                      </p>
+
+                      <p className="text-gray-500 text-sm mt-2">
+                        {item?.scanned_at
+                          ? new Date(
+                              item.scanned_at
+                            ).toLocaleString()
+                          : "Date unavailable"}
+                      </p>
+
+                    </div>
+
+                  </div>
 
                 </div>
 
-                <span
-                  className={`px-3 py-1 rounded-full font-semibold ${
-                    item.prediction === "Legitimate"
-                      ? "bg-green-600"
-                      : "bg-red-600"
-                  }`}
-                >
-                  {item.prediction}
-                </span>
+                <div className="flex flex-wrap items-center gap-3">
 
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mt-6">
-
-                <div>
-                  <p className="text-gray-400 text-sm">
-                    Confidence
-                  </p>
-
-                  <p className="font-semibold">
-                    {item.confidence}%
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-gray-400 text-sm">
-                    Risk Level
-                  </p>
-
-                  <p
-                    className={`font-semibold ${
-                      item.risk_level === "Low"
-                        ? "text-green-400"
-                        : item.risk_level === "Medium"
-                        ? "text-yellow-400"
-                        : "text-red-400"
+                  <span
+                    className={`px-3 py-1.5 rounded-full text-sm font-semibold ${
+                      isSafe
+                        ? "bg-green-500/15 text-green-400"
+                        : "bg-red-500/15 text-red-400"
                     }`}
                   >
-                    {item.risk_level}
-                  </p>
+                    {prediction}
+                  </span>
+
+                  <span
+                    className={`px-3 py-1.5 rounded-full text-sm font-semibold ${
+                      riskLevel === "High"
+                        ? "bg-red-500/15 text-red-400"
+                        : riskLevel === "Medium"
+                        ? "bg-yellow-500/15 text-yellow-400"
+                        : riskLevel === "Low"
+                        ? "bg-green-500/15 text-green-400"
+                        : "bg-slate-700 text-gray-300"
+                    }`}
+                  >
+                    {riskLevel}
+                  </span>
+
+                  <span className="text-sm text-gray-400">
+                    {confidence}% confidence
+                  </span>
+
+                  <span className="text-sm text-gray-400">
+                    Risk: {finalScore}
+                  </span>
+
+                  {item?.id && (
+                    <button
+                      type="button"
+                      onClick={() => deleteScan(item.id)}
+                      className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition"
+                      title="Delete scan"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  )}
+
                 </div>
-
-                <div>
-                  <p className="text-gray-400 text-sm">
-                    Risk Score
-                  </p>
-
-                  <p className="font-semibold">
-                    {item.final_score}%
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-gray-400 text-sm">
-                    Scanned At
-                  </p>
-
-                  <p className="font-semibold">
-                    {new Date(item.scanned_at).toLocaleString()}
-                  </p>
-                </div>
-
-              </div>
-
-              <div className="mt-6 flex justify-end">
-
-                <button
-                  onClick={() => deleteHistoryItem(item.id)}
-                  className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition"
-                >
-                  Delete
-                </button>
 
               </div>
 
             </div>
+          );
+        })}
 
-          ))}
+      </div>
 
-        </div>
-      )}
-
-    </div>
+    </section>
   );
 }
 

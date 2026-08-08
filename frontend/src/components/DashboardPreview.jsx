@@ -1,18 +1,18 @@
-import CountUp from "react-countup";
 import {
   Shield,
   ShieldCheck,
   ShieldAlert,
   Activity,
+  Globe,
+  QrCode,
+  MessageSquare,
 } from "lucide-react";
 
 function DashboardPreview() {
   return (
-    <section className="bg-slate-950 py-20 px-6">
+    <section className="bg-slate-900 py-20 px-6">
 
       <div className="max-w-7xl mx-auto">
-
-        {/* Heading */}
 
         <div className="text-center mb-14">
 
@@ -20,18 +20,16 @@ function DashboardPreview() {
             Real-Time Security Dashboard
           </h2>
 
-          <p className="text-gray-400 mt-4 max-w-3xl mx-auto text-lg">
-            Monitor phishing URLs, QR scans and SMS analysis from a single
-            intelligent dashboard.
+          <p className="text-gray-400 mt-4 text-lg max-w-3xl mx-auto">
+            Monitor phishing URLs, malicious QR codes, scam SMS messages
+            and security insights in one place.
           </p>
 
         </div>
 
-        {/* Statistics */}
-
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
 
-          <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 hover:border-cyan-400 hover:shadow-cyan-400/20 hover:shadow-xl transition-all duration-300">
+          <div className="bg-slate-800 rounded-2xl p-6 border border-slate-700 hover:border-cyan-400 hover:shadow-xl hover:shadow-cyan-400/20 hover:-translate-y-2 transition-all">
 
             <Shield
               size={42}
@@ -42,13 +40,13 @@ function DashboardPreview() {
               Total Scans
             </p>
 
-            <h2 className="text-4xl font-bold text-white mt-3">
-              <CountUp end={500} duration={2} />+
+            <h2 className="text-4xl font-bold text-white mt-2">
+              500+
             </h2>
 
           </div>
 
-          <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 hover:border-green-400 hover:shadow-green-400/20 hover:shadow-xl transition-all duration-300">
+          <div className="bg-slate-800 rounded-2xl p-6 border border-slate-700 hover:border-green-400 hover:shadow-xl hover:shadow-green-400/20 hover:-translate-y-2 transition-all">
 
             <ShieldCheck
               size={42}
@@ -56,16 +54,16 @@ function DashboardPreview() {
             />
 
             <p className="text-gray-400">
-              Safe Scans
+              Safe Content
             </p>
 
-            <h2 className="text-4xl font-bold text-green-400 mt-3">
-              <CountUp end={410} duration={2} />
+            <h2 className="text-4xl font-bold text-green-400 mt-2">
+              410
             </h2>
 
           </div>
 
-          <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 hover:border-red-400 hover:shadow-red-400/20 hover:shadow-xl transition-all duration-300">
+          <div className="bg-slate-800 rounded-2xl p-6 border border-slate-700 hover:border-red-400 hover:shadow-xl hover:shadow-red-400/20 hover:-translate-y-2 transition-all">
 
             <ShieldAlert
               size={42}
@@ -76,13 +74,13 @@ function DashboardPreview() {
               Threats Blocked
             </p>
 
-            <h2 className="text-4xl font-bold text-red-400 mt-3">
-              <CountUp end={90} duration={2} />
+            <h2 className="text-4xl font-bold text-red-400 mt-2">
+              90
             </h2>
 
           </div>
 
-          <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 hover:border-yellow-400 hover:shadow-yellow-400/20 hover:shadow-xl transition-all duration-300">
+          <div className="bg-slate-800 rounded-2xl p-6 border border-slate-700 hover:border-yellow-400 hover:shadow-xl hover:shadow-yellow-400/20 hover:-translate-y-2 transition-all">
 
             <Activity
               size={42}
@@ -90,28 +88,26 @@ function DashboardPreview() {
             />
 
             <p className="text-gray-400">
-              Detection Accuracy
+              Accuracy
             </p>
 
-            <h2 className="text-4xl font-bold text-yellow-400 mt-3">
-              <CountUp end={99} duration={2} />%
+            <h2 className="text-4xl font-bold text-yellow-400 mt-2">
+              99%
             </h2>
 
           </div>
 
         </div>
 
-        {/* Dashboard Card */}
+        <div className="mt-16 bg-slate-800 rounded-3xl p-8 border border-slate-700 shadow-2xl">
 
-        <div className="mt-16 bg-slate-900 rounded-3xl border border-slate-800 p-8 shadow-2xl">
-
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8">
 
             <h2 className="text-3xl font-bold text-white">
               Dashboard Preview
             </h2>
 
-            <span className="bg-emerald-500 text-white px-4 py-2 rounded-full font-semibold">
+            <span className="bg-emerald-500 text-slate-950 px-4 py-2 rounded-full font-semibold w-fit">
               LIVE
             </span>
 
@@ -119,11 +115,11 @@ function DashboardPreview() {
 
           <div className="grid md:grid-cols-3 gap-6">
 
-            <div className="bg-slate-800 rounded-xl p-6 hover:scale-105 transition-all duration-300">
+            <div className="bg-slate-900 rounded-xl p-6 hover:scale-105 transition">
 
-              <Shield
+              <Globe
                 className="text-emerald-400 mb-4"
-                size={38}
+                size={36}
               />
 
               <h3 className="text-xl font-bold text-white">
@@ -131,17 +127,16 @@ function DashboardPreview() {
               </h3>
 
               <p className="text-gray-400 mt-3">
-                AI-powered phishing URL detection with intelligent
-                rule-based verification.
+                Detect phishing websites with AI-powered analysis.
               </p>
 
             </div>
 
-            <div className="bg-slate-800 rounded-xl p-6 hover:scale-105 transition-all duration-300">
+            <div className="bg-slate-900 rounded-xl p-6 hover:scale-105 transition">
 
-              <ShieldCheck
+              <QrCode
                 className="text-cyan-400 mb-4"
-                size={38}
+                size={36}
               />
 
               <h3 className="text-xl font-bold text-white">
@@ -149,17 +144,16 @@ function DashboardPreview() {
               </h3>
 
               <p className="text-gray-400 mt-3">
-                Decode QR codes safely and verify embedded links
-                before opening.
+                Scan QR codes before opening unknown links.
               </p>
 
             </div>
 
-            <div className="bg-slate-800 rounded-xl p-6 hover:scale-105 transition-all duration-300">
+            <div className="bg-slate-900 rounded-xl p-6 hover:scale-105 transition">
 
-              <ShieldAlert
+              <MessageSquare
                 className="text-orange-400 mb-4"
-                size={38}
+                size={36}
               />
 
               <h3 className="text-xl font-bold text-white">
@@ -167,59 +161,8 @@ function DashboardPreview() {
               </h3>
 
               <p className="text-gray-400 mt-3">
-                Detect scam messages, phishing attacks and malicious
-                URLs instantly.
+                Detect scam messages and malicious URLs instantly.
               </p>
-
-            </div>
-
-          </div>
-
-          {/* Recent Activity */}
-
-          <div className="mt-10">
-
-            <h3 className="text-2xl font-bold text-white mb-6">
-              Sample Recent Activity
-            </h3>
-
-            <div className="space-y-4">
-
-              <div className="bg-slate-800 rounded-xl p-4 flex justify-between items-center">
-
-                <span className="text-gray-300">
-                  https://youtube.com
-                </span>
-
-                <span className="bg-green-600 px-3 py-1 rounded-full font-semibold">
-                  Legitimate
-                </span>
-
-              </div>
-
-              <div className="bg-slate-800 rounded-xl p-4 flex justify-between items-center">
-
-                <span className="text-gray-300">
-                  bank-login-security.xyz
-                </span>
-
-                <span className="bg-red-600 px-3 py-1 rounded-full font-semibold">
-                  Phishing
-                </span>
-
-              </div>
-
-              <div className="bg-slate-800 rounded-xl p-4 flex justify-between items-center">
-
-                <span className="text-gray-300">
-                  Congratulations! Claim your reward now.
-                </span>
-
-                <span className="bg-yellow-500 text-black px-3 py-1 rounded-full font-semibold">
-                  Suspicious
-                </span>
-
-              </div>
 
             </div>
 

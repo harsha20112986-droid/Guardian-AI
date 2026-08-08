@@ -1,27 +1,35 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+
 import App from "./App";
 import "./index.css";
+
+import { ThemeProvider } from "./context/ThemeContext";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { ThemeProvider } from "./context/ThemeContext";
-
-ReactDOM.createRoot(document.getElementById("root")).render(
+ReactDOM.createRoot(
+  document.getElementById("root")
+).render(
   <React.StrictMode>
+
     <ThemeProvider>
 
-      <>
-        <App />
+      <App />
 
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          theme="dark"
-        />
-      </>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        draggable
+        limit={3}
+        theme="dark"
+      />
 
     </ThemeProvider>
+
   </React.StrictMode>
 );
