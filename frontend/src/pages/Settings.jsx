@@ -8,10 +8,11 @@ import {
   Trash2,
   RotateCcw,
   CheckCircle,
+  Save,
+  Sparkles,
 } from "lucide-react";
-import { toast } from "react-toastify";
 
-import Navbar from "../components/Navbar";
+import { toast } from "react-toastify";
 import api from "../api/api";
 
 function Settings() {
@@ -25,31 +26,31 @@ function Settings() {
       "guardian_ai_settings"
     );
 
-    if (savedSettings) {
-      try {
-        const settings = JSON.parse(savedSettings);
+    if (!savedSettings) return;
 
-        setNotifications(
-          settings.notifications ?? true
-        );
+    try {
+      const settings = JSON.parse(savedSettings);
 
-        setConfirmDelete(
-          settings.confirmDelete ?? true
-        );
+      setNotifications(
+        settings.notifications ?? true
+      );
 
-        setShowConfidence(
-          settings.showConfidence ?? true
-        );
+      setConfirmDelete(
+        settings.confirmDelete ?? true
+      );
 
-        setShowRiskScore(
-          settings.showRiskScore ?? true
-        );
-      } catch (error) {
-        console.error(
-          "Failed to load settings:",
-          error
-        );
-      }
+      setShowConfidence(
+        settings.showConfidence ?? true
+      );
+
+      setShowRiskScore(
+        settings.showRiskScore ?? true
+      );
+    } catch (error) {
+      console.error(
+        "Failed to load settings:",
+        error
+      );
     }
   }, []);
 
@@ -90,6 +91,11 @@ function Settings() {
 
     try {
       await api.delete("/history/");
+
+      // Tell other pages/components that history changed.
+      window.dispatchEvent(
+        new Event("guardian-history-updated")
+      );
 
       toast.success(
         "Scan history cleared successfully."
@@ -135,6 +141,9 @@ function Settings() {
       <button
         type="button"
         onClick={onChange}
+        aria-label={
+          enabled ? "Disable setting" : "Enable setting"
+        }
         className={`relative w-12 h-6 rounded-full transition ${
           enabled
             ? "bg-emerald-500"
@@ -155,57 +164,79 @@ function Settings() {
   return (
     <div className="min-h-screen bg-slate-950 text-white">
 
-      <Navbar />
-
-      <main className="px-6 py-10">
+      <main className="px-4 sm:px-6 py-10 md:py-14">
 
         <div className="max-w-5xl mx-auto">
 
           {/* Header */}
 
-          <div className="flex items-center gap-4 mb-10">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 mb-10">
 
-            <div className="p-4 bg-emerald-500/10 rounded-2xl">
+            <div className="flex items-center gap-4">
 
-              <SettingsIcon
-                size={36}
-                className="text-emerald-400"
-              />
+              <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
+
+                <SettingsIcon
+                  size={36}
+                  className="text-emerald-400"
+                />
+
+              </div>
+
+              <div>
+
+                <h1 className="text-3xl md:text-5xl font-bold">
+                  Settings
+                </h1>
+
+                <p className="text-gray-400 mt-2">
+                  Manage your Guardian AI preferences.
+                </p>
+
+              </div>
 
             </div>
 
-            <div>
+            <div className="flex items-center gap-2 text-sm text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-full w-fit">
 
-              <h1 className="text-4xl font-bold">
-                Settings
-              </h1>
+              <Sparkles size={16} />
 
-              <p className="text-gray-400 mt-2">
-                Manage your Guardian AI preferences.
-              </p>
+              Preferences Active
 
             </div>
 
           </div>
 
-          {/* Notification Settings */}
+          {/* Notifications */}
 
-          <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 mb-8">
+          <section className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 mb-6 shadow-xl">
 
             <div className="flex items-center gap-3 mb-6">
 
-              <Bell
-                size={26}
-                className="text-yellow-400"
-              />
+              <div className="p-3 bg-yellow-500/10 rounded-xl">
 
-              <h2 className="text-2xl font-bold">
-                Notifications
-              </h2>
+                <Bell
+                  size={24}
+                  className="text-yellow-400"
+                />
+
+              </div>
+
+              <div>
+
+                <h2 className="text-2xl font-bold">
+                  Notifications
+                </h2>
+
+                <p className="text-sm text-gray-500 mt-1">
+                  Control scan completion notifications.
+                </p>
+
+              </div>
 
             </div>
 
-            <div className="flex items-center justify-between py-4">
+            <div className="flex items-center justify-between gap-5 py-4">
 
               <div>
 
@@ -214,8 +245,7 @@ function Settings() {
                 </h3>
 
                 <p className="text-sm text-gray-400 mt-1">
-                  Show notifications after completing
-                  security scans.
+                  Show notifications after completing security scans.
                 </p>
 
               </div>
@@ -235,26 +265,38 @@ function Settings() {
 
           </section>
 
-          {/* Scan Settings */}
+          {/* Scan Preferences */}
 
-          <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 mb-8">
+          <section className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 mb-6 shadow-xl">
 
             <div className="flex items-center gap-3 mb-6">
 
-              <Shield
-                size={26}
-                className="text-emerald-400"
-              />
+              <div className="p-3 bg-emerald-500/10 rounded-xl">
 
-              <h2 className="text-2xl font-bold">
-                Scan Preferences
-              </h2>
+                <Shield
+                  size={24}
+                  className="text-emerald-400"
+                />
+
+              </div>
+
+              <div>
+
+                <h2 className="text-2xl font-bold">
+                  Scan Preferences
+                </h2>
+
+                <p className="text-sm text-gray-500 mt-1">
+                  Control the information shown after scans.
+                </p>
+
+              </div>
 
             </div>
 
-            <div className="space-y-2">
+            <div className="divide-y divide-slate-800">
 
-              <div className="flex items-center justify-between py-4">
+              <div className="flex items-center justify-between gap-5 py-5">
 
                 <div>
 
@@ -263,8 +305,7 @@ function Settings() {
                   </h3>
 
                   <p className="text-sm text-gray-400 mt-1">
-                    Display the AI confidence percentage
-                    in scan results.
+                    Display the AI confidence percentage in scan results.
                   </p>
 
                 </div>
@@ -282,7 +323,7 @@ function Settings() {
 
               </div>
 
-              <div className="flex items-center justify-between py-4">
+              <div className="flex items-center justify-between gap-5 py-5">
 
                 <div>
 
@@ -291,8 +332,7 @@ function Settings() {
                   </h3>
 
                   <p className="text-sm text-gray-400 mt-1">
-                    Display the calculated security risk
-                    score.
+                    Display the calculated security risk score.
                   </p>
 
                 </div>
@@ -314,24 +354,36 @@ function Settings() {
 
           </section>
 
-          {/* History Settings */}
+          {/* History */}
 
-          <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 mb-8">
+          <section className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 mb-6 shadow-xl">
 
             <div className="flex items-center gap-3 mb-6">
 
-              <Database
-                size={26}
-                className="text-cyan-400"
-              />
+              <div className="p-3 bg-cyan-500/10 rounded-xl">
 
-              <h2 className="text-2xl font-bold">
-                History
-              </h2>
+                <Database
+                  size={24}
+                  className="text-cyan-400"
+                />
+
+              </div>
+
+              <div>
+
+                <h2 className="text-2xl font-bold">
+                  History
+                </h2>
+
+                <p className="text-sm text-gray-500 mt-1">
+                  Manage stored scan records.
+                </p>
+
+              </div>
 
             </div>
 
-            <div className="flex items-center justify-between py-4">
+            <div className="flex items-center justify-between gap-5 py-5">
 
               <div>
 
@@ -340,8 +392,7 @@ function Settings() {
                 </h3>
 
                 <p className="text-sm text-gray-400 mt-1">
-                  Ask for confirmation before deleting
-                  scan history.
+                  Ask for confirmation before deleting scan history.
                 </p>
 
               </div>
@@ -359,28 +410,59 @@ function Settings() {
 
             </div>
 
-            <div className="border-t border-slate-800 mt-4 pt-6">
+            <div className="border-t border-slate-800 mt-3 pt-6">
 
-              <h3 className="font-semibold">
-                Clear Scan History
-              </h3>
+              <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-5">
 
-              <p className="text-sm text-gray-400 mt-1 mb-4">
-                Permanently remove all saved scan results
-                from Guardian AI.
-              </p>
+                <div className="flex items-start gap-4">
 
-              <button
-                type="button"
-                onClick={clearHistory}
-                className="flex items-center gap-2 bg-red-600 hover:bg-red-700 px-5 py-3 rounded-xl font-semibold transition"
-              >
+                  <div className="p-3 bg-red-500/10 rounded-xl">
 
-                <Trash2 size={18} />
+                    <Trash2
+                      size={22}
+                      className="text-red-400"
+                    />
 
-                Clear All History
+                  </div>
 
-              </button>
+                  <div className="flex-1">
+
+                    <h3 className="font-semibold">
+                      Clear Scan History
+                    </h3>
+
+                    <p className="text-sm text-gray-400 mt-1 mb-4">
+                      Permanently remove all saved scan results from Guardian AI.
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={clearHistory}
+                      className="
+                        flex
+                        items-center
+                        gap-2
+                        bg-red-600
+                        hover:bg-red-700
+                        px-5
+                        py-3
+                        rounded-xl
+                        font-semibold
+                        transition
+                      "
+                    >
+
+                      <Trash2 size={18} />
+
+                      Clear All History
+
+                    </button>
+
+                  </div>
+
+                </div>
+
+              </div>
 
             </div>
 
@@ -388,22 +470,34 @@ function Settings() {
 
           {/* Appearance */}
 
-          <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 mb-8">
+          <section className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 mb-6 shadow-xl">
 
             <div className="flex items-center gap-3 mb-6">
 
-              <Moon
-                size={26}
-                className="text-purple-400"
-              />
+              <div className="p-3 bg-purple-500/10 rounded-xl">
 
-              <h2 className="text-2xl font-bold">
-                Appearance
-              </h2>
+                <Moon
+                  size={24}
+                  className="text-purple-400"
+                />
+
+              </div>
+
+              <div>
+
+                <h2 className="text-2xl font-bold">
+                  Appearance
+                </h2>
+
+                <p className="text-sm text-gray-500 mt-1">
+                  Current interface appearance.
+                </p>
+
+              </div>
 
             </div>
 
-            <div className="bg-slate-800 rounded-xl p-5 flex items-center justify-between">
+            <div className="bg-slate-800 border border-slate-700 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 
               <div>
 
@@ -412,8 +506,7 @@ function Settings() {
                 </h3>
 
                 <p className="text-sm text-gray-400 mt-1">
-                  Guardian AI currently uses its secure
-                  dark interface.
+                  Guardian AI currently uses its secure dark interface.
                 </p>
 
               </div>
@@ -434,27 +527,51 @@ function Settings() {
 
           {/* Reset */}
 
-          <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8">
+          <section className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-xl">
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
 
-              <div>
+              <div className="flex items-start gap-4">
 
-                <h2 className="text-xl font-bold">
-                  Reset Settings
-                </h2>
+                <div className="p-3 bg-slate-800 rounded-xl">
 
-                <p className="text-sm text-gray-400 mt-1">
-                  Restore all Guardian AI settings to
-                  their default values.
-                </p>
+                  <RotateCcw
+                    size={22}
+                    className="text-gray-400"
+                  />
+
+                </div>
+
+                <div>
+
+                  <h2 className="text-xl font-bold">
+                    Reset Settings
+                  </h2>
+
+                  <p className="text-sm text-gray-400 mt-1">
+                    Restore all Guardian AI settings to their default values.
+                  </p>
+
+                </div>
 
               </div>
 
               <button
                 type="button"
                 onClick={resetSettings}
-                className="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 px-5 py-3 rounded-xl font-semibold transition"
+                className="
+                  flex
+                  items-center
+                  justify-center
+                  gap-2
+                  bg-slate-700
+                  hover:bg-slate-600
+                  px-5
+                  py-3
+                  rounded-xl
+                  font-semibold
+                  transition
+                "
               >
 
                 <RotateCcw size={18} />
@@ -467,8 +584,22 @@ function Settings() {
 
           </section>
 
+          {/* Footer */}
+
           <footer className="text-center text-gray-600 text-sm mt-10 pb-6">
-            Guardian AI v1.0.0
+
+            <div className="flex items-center justify-center gap-2">
+
+              <Save size={14} />
+
+              Settings are saved automatically
+
+            </div>
+
+            <p className="mt-2">
+              Guardian AI v1.0.0
+            </p>
+
           </footer>
 
         </div>

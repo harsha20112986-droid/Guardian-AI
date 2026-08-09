@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
-import { Link2 } from "lucide-react";
+import {
+  Link2,
+  ShieldCheck,
+  Search,
+  Sparkles,
+  History,
+} from "lucide-react";
 import { toast } from "react-toastify";
 
 import api from "../api/api";
-import Navbar from "../components/Navbar";
+
 import Dashboard from "../components/Dashboard";
 import RecentScans from "../components/RecentScans";
 import ResultCard from "../components/ResultCard";
@@ -23,7 +29,7 @@ function UrlScanner() {
       const response = await api.get("/history");
       setHistory(response.data);
     } catch (error) {
-      console.error(error);
+      console.error("Failed to load history:", error);
     }
   };
 
@@ -59,7 +65,7 @@ function UrlScanner() {
 
       await loadHistory();
     } catch (error) {
-      console.error(error);
+      console.error("URL scan failed:", error);
 
       toast.error(
         error.response?.data?.detail ||
@@ -81,39 +87,86 @@ function UrlScanner() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <main className="relative min-h-full px-4 sm:px-6 py-10 md:py-14 overflow-hidden">
 
-      <Navbar />
+      {/* Background effects */}
 
-      <main className="px-6 py-10">
-        <div className="max-w-6xl mx-auto">
+      <div className="absolute top-20 left-[-180px] w-[350px] h-[350px] bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
 
-          <Dashboard history={history} />
+      <div className="absolute bottom-20 right-[-180px] w-[350px] h-[350px] bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
 
-          <section className="mt-8 bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-xl">
+      <div className="max-w-6xl mx-auto relative z-10">
 
-            <div className="flex items-center gap-3 mb-6">
+        {/* Dashboard */}
 
-              <div className="p-3 bg-emerald-500/10 rounded-xl">
+        <Dashboard history={history} />
+
+        {/* Scanner */}
+
+        <section className="mt-8 bg-slate-900/90 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl">
+
+          {/* Header */}
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 mb-8">
+
+            <div className="flex items-center gap-4">
+
+              <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
+
                 <Link2
                   size={30}
                   className="text-emerald-400"
                 />
+
               </div>
 
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold">
+
+                <h1 className="text-2xl md:text-3xl font-bold text-white">
                   URL Scanner
                 </h1>
 
                 <p className="text-gray-400 mt-1">
                   Check a suspicious URL before visiting it.
                 </p>
+
               </div>
 
             </div>
 
-            <div className="space-y-4">
+            <div className="flex items-center gap-2 text-sm text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-full w-fit">
+
+              <ShieldCheck size={16} />
+
+              AI Protection Active
+
+            </div>
+
+          </div>
+
+          {/* Scanner Input */}
+
+          <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-5 md:p-6">
+
+            <div className="flex items-center gap-2 mb-4 text-gray-300">
+
+              <Search
+                size={18}
+                className="text-emerald-400"
+              />
+
+              <span className="font-medium">
+                Enter website URL
+              </span>
+
+            </div>
+
+            <div className="relative">
+
+              <Link2
+                size={20}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+              />
 
               <input
                 type="url"
@@ -126,64 +179,180 @@ function UrlScanner() {
                   }
                 }}
                 disabled={loading}
-                className="w-full px-5 py-4 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder:text-gray-500 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition disabled:opacity-60"
+                className="
+                  w-full
+                  pl-12
+                  pr-5
+                  py-4
+                  rounded-xl
+                  bg-slate-800
+                  border
+                  border-slate-700
+                  text-white
+                  placeholder:text-gray-500
+                  outline-none
+                  focus:border-emerald-500
+                  focus:ring-2
+                  focus:ring-emerald-500/20
+                  transition-all
+                  disabled:opacity-60
+                "
               />
-
-              <div className="flex flex-col sm:flex-row gap-3">
-
-                <button
-                  type="button"
-                  onClick={handleScan}
-                  disabled={loading}
-                  className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 py-3.5 rounded-xl font-bold transition disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? (
-                    <span className="flex items-center justify-center gap-3">
-                      <span className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-                      Scanning...
-                    </span>
-                  ) : (
-                    "Scan URL"
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleClear}
-                  disabled={loading}
-                  className="sm:w-32 bg-slate-700 hover:bg-slate-600 text-white py-3.5 rounded-xl font-semibold transition disabled:opacity-50"
-                >
-                  Clear
-                </button>
-
-              </div>
 
             </div>
 
-            {result && (
-              <div className="mt-8">
-                <ResultCard
-                  result={result}
-                  onReset={resetScan}
+            {/* Buttons */}
+
+            <div className="flex flex-col sm:flex-row gap-3 mt-4">
+
+              <button
+                type="button"
+                onClick={handleScan}
+                disabled={loading}
+                className="
+                  flex-1
+                  flex
+                  items-center
+                  justify-center
+                  gap-2
+                  bg-emerald-500
+                  hover:bg-emerald-600
+                  text-slate-950
+                  py-3.5
+                  rounded-xl
+                  font-bold
+                  transition-all
+                  duration-300
+                  hover:-translate-y-0.5
+                  disabled:opacity-50
+                  disabled:cursor-not-allowed
+                "
+              >
+
+                {loading ? (
+                  <>
+                    <span className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+
+                    Scanning URL...
+                  </>
+                ) : (
+                  <>
+                    <Search size={19} />
+
+                    Scan URL
+                  </>
+                )}
+
+              </button>
+
+              <button
+                type="button"
+                onClick={handleClear}
+                disabled={loading}
+                className="
+                  sm:w-32
+                  bg-slate-700
+                  hover:bg-slate-600
+                  text-white
+                  py-3.5
+                  rounded-xl
+                  font-semibold
+                  transition-all
+                  disabled:opacity-50
+                  disabled:cursor-not-allowed
+                "
+              >
+                Clear
+              </button>
+
+            </div>
+
+            {/* Information */}
+
+            <div className="flex flex-wrap gap-4 mt-5 text-xs text-gray-500">
+
+              <span className="flex items-center gap-1.5">
+                <ShieldCheck
+                  size={14}
+                  className="text-emerald-400"
                 />
-              </div>
-            )}
+                Machine Learning
+              </span>
 
-          </section>
+              <span className="flex items-center gap-1.5">
+                <Sparkles
+                  size={14}
+                  className="text-purple-400"
+                />
+                Rule-Based Analysis
+              </span>
 
-          <section className="mt-8">
+              <span className="flex items-center gap-1.5">
+                <ShieldCheck
+                  size={14}
+                  className="text-cyan-400"
+                />
+                Risk Scoring
+              </span>
 
-            <RecentScans
-              history={history}
-              onHistoryChange={loadHistory}
-            />
+            </div>
 
-          </section>
+          </div>
 
-        </div>
-      </main>
+          {/* Result */}
 
-    </div>
+          {result && (
+            <div className="mt-8">
+
+              <ResultCard
+                result={result}
+                onReset={resetScan}
+              />
+
+            </div>
+          )}
+
+        </section>
+
+        {/* Recent Scans */}
+
+        <section className="mt-8">
+
+          <div className="flex items-center gap-3 mb-5">
+
+            <div className="p-2.5 bg-slate-800 border border-slate-700 rounded-xl">
+
+              <History
+                size={20}
+                className="text-emerald-400"
+              />
+
+            </div>
+
+            <div>
+
+              <h2 className="text-xl md:text-2xl font-bold text-white">
+                Recent Scans
+              </h2>
+
+              <p className="text-sm text-gray-500">
+                Your latest URL security checks
+              </p>
+
+            </div>
+
+          </div>
+
+          <RecentScans
+            history={history}
+            onHistoryChange={loadHistory}
+          />
+
+        </section>
+
+      </div>
+
+    </main>
   );
 }
 

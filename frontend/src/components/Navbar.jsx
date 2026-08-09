@@ -4,179 +4,296 @@ import {
   Bell,
   Menu,
   X,
+  Home,
+  Link2,
+  QrCode,
+  MessageSquare,
+  BarChart3,
+  History,
+  Info,
+  Settings,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const navClass = ({ isActive }) =>
-    `transition-all duration-300 font-medium ${
+  const navItems = [
+    {
+      to: "/",
+      label: "Home",
+      icon: Home,
+    },
+    {
+      to: "/url-scanner",
+      label: "URL Scanner",
+      icon: Link2,
+    },
+    {
+      to: "/qr-scanner",
+      label: "QR Scanner",
+      icon: QrCode,
+    },
+    {
+      to: "/sms-scanner",
+      label: "SMS Scanner",
+      icon: MessageSquare,
+    },
+    {
+      to: "/analytics",
+      label: "Analytics",
+      icon: BarChart3,
+    },
+    {
+      to: "/history",
+      label: "History",
+      icon: History,
+    },
+    {
+      to: "/about",
+      label: "About",
+      icon: Info,
+    },
+    {
+      to: "/settings",
+      label: "Settings",
+      icon: Settings,
+    },
+  ];
+
+  const desktopNavClass = ({ isActive }) =>
+    `relative flex items-center gap-2 text-sm font-medium transition-all duration-300 ${
       isActive
-        ? "text-emerald-400 border-b-2 border-emerald-400 pb-1"
+        ? "text-emerald-400"
         : "text-gray-300 hover:text-emerald-400"
     }`;
+
+  const mobileNavClass = ({ isActive }) =>
+    `flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
+      isActive
+        ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+        : "text-gray-300 hover:bg-slate-800 hover:text-emerald-400"
+    }`;
+
+  const closeMenu = () => {
+    setMenuOpen(false);
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800">
 
-      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      {/* Main Navbar */}
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
+
+        {/* Logo */}
 
         <NavLink
           to="/"
-          className="flex items-center gap-3"
+          onClick={closeMenu}
+          className="flex items-center gap-3 group"
         >
-          <Shield
-            size={34}
-            className="text-emerald-400"
-          />
 
-          <div>
-            <h1 className="text-2xl font-bold text-white">
+          <div className="relative">
+
+            <div className="absolute inset-0 bg-emerald-500/20 rounded-xl blur-md group-hover:bg-emerald-500/30 transition" />
+
+            <div className="relative p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+
+              <Shield
+                size={30}
+                className="text-emerald-400"
+              />
+
+            </div>
+
+          </div>
+
+          <div className="hidden sm:block">
+
+            <h1 className="text-xl md:text-2xl font-bold text-white leading-tight">
               Guardian AI
             </h1>
 
-            <p className="text-xs text-gray-400">
+            <p className="text-[11px] text-gray-500">
               AI Cybersecurity Platform
             </p>
+
           </div>
+
         </NavLink>
 
-        <div className="hidden lg:flex items-center gap-8">
+        {/* Desktop Navigation */}
 
-          <NavLink to="/" className={navClass}>
-            Home
-          </NavLink>
+        <div className="hidden lg:flex items-center gap-6">
 
-          <NavLink to="/url-scanner" className={navClass}>
-            URL Scanner
-          </NavLink>
+          {navItems.map((item) => {
+            const Icon = item.icon;
 
-          <NavLink to="/qr-scanner" className={navClass}>
-            QR Scanner
-          </NavLink>
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.to === "/"}
+                className={desktopNavClass}
+              >
 
-          <NavLink to="/sms-scanner" className={navClass}>
-            SMS Scanner
-          </NavLink>
+                <Icon size={16} />
 
-          <NavLink to="/analytics" className={navClass}>
-            Analytics
-          </NavLink>
+                {item.label}
 
-          <NavLink to="/history" className={navClass}>
-            History
-          </NavLink>
+                {/* Active indicator */}
 
-          <NavLink to="/about" className={navClass}>
-            About
-          </NavLink>
+                <span
+                  className="
+                    absolute
+                    -bottom-7
+                    left-0
+                    right-0
+                    h-0.5
+                    bg-emerald-400
+                    rounded-full
+                    opacity-0
+                    scale-x-0
+                    transition-all
+                    duration-300
+                  "
+                />
 
-          <NavLink to="/settings" className={navClass}>
-            Settings
-          </NavLink>
+              </NavLink>
+            );
+          })}
 
         </div>
 
-        <div className="hidden lg:flex items-center">
+        {/* Right Side */}
 
-          <button className="relative p-2 rounded-full hover:bg-slate-800 transition">
+        <div className="flex items-center gap-3">
+
+          {/* Notification */}
+
+          <button
+            type="button"
+            className="
+              hidden
+              sm:flex
+              relative
+              p-2.5
+              rounded-xl
+              bg-slate-900
+              border
+              border-slate-800
+              hover:border-emerald-500/30
+              hover:bg-slate-800
+              transition
+            "
+            title="Notifications"
+          >
 
             <Bell
-              size={22}
+              size={20}
               className="text-gray-300"
             />
 
-            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500"></span>
+            <span
+              className="
+                absolute
+                top-1.5
+                right-1.5
+                w-2
+                h-2
+                rounded-full
+                bg-red-500
+                ring-2
+                ring-slate-950
+              "
+            />
+
+          </button>
+
+          {/* Mobile Menu Button */}
+
+          <button
+            type="button"
+            onClick={() => setMenuOpen((prev) => !prev)}
+            className="
+              lg:hidden
+              p-2.5
+              rounded-xl
+              bg-slate-900
+              border
+              border-slate-800
+              hover:border-emerald-500/30
+              transition
+            "
+            aria-label={
+              menuOpen
+                ? "Close navigation menu"
+                : "Open navigation menu"
+            }
+          >
+
+            {menuOpen ? (
+              <X
+                size={26}
+                className="text-emerald-400"
+              />
+            ) : (
+              <Menu
+                size={26}
+                className="text-gray-300"
+              />
+            )}
 
           </button>
 
         </div>
 
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="lg:hidden text-white"
-        >
-          {menuOpen ? (
-            <X size={30} />
-          ) : (
-            <Menu size={30} />
-          )}
-        </button>
-
       </div>
 
+      {/* Mobile Navigation */}
+
       <div
-        className={`lg:hidden overflow-hidden transition-all duration-300 ${
-          menuOpen ? "max-h-[500px]" : "max-h-0"
-        }`}
+        className={`
+          lg:hidden
+          overflow-hidden
+          transition-all
+          duration-300
+          ${
+            menuOpen
+              ? "max-h-[700px] opacity-100"
+              : "max-h-0 opacity-0"
+          }
+        `}
       >
 
-        <div className="bg-slate-900 border-t border-slate-800 px-6 py-6 space-y-5">
+        <div className="border-t border-slate-800 bg-slate-950 px-4 sm:px-6 py-5">
 
-          <NavLink
-            to="/"
-            className={navClass}
-            onClick={() => setMenuOpen(false)}
-          >
-            Home
-          </NavLink>
+          <div className="max-w-7xl mx-auto space-y-2">
 
-          <NavLink
-            to="/url-scanner"
-            className={navClass}
-            onClick={() => setMenuOpen(false)}
-          >
-            URL Scanner
-          </NavLink>
+            {navItems.map((item) => {
+              const Icon = item.icon;
 
-          <NavLink
-            to="/qr-scanner"
-            className={navClass}
-            onClick={() => setMenuOpen(false)}
-          >
-            QR Scanner
-          </NavLink>
+              return (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.to === "/"}
+                  className={mobileNavClass}
+                  onClick={closeMenu}
+                >
 
-          <NavLink
-            to="/sms-scanner"
-            className={navClass}
-            onClick={() => setMenuOpen(false)}
-          >
-            SMS Scanner
-          </NavLink>
+                  <Icon size={19} />
 
-          <NavLink
-            to="/analytics"
-            className={navClass}
-            onClick={() => setMenuOpen(false)}
-          >
-            Analytics
-          </NavLink>
+                  <span>
+                    {item.label}
+                  </span>
 
-          <NavLink
-            to="/history"
-            className={navClass}
-            onClick={() => setMenuOpen(false)}
-          >
-            History
-          </NavLink>
+                </NavLink>
+              );
+            })}
 
-          <NavLink
-            to="/about"
-            className={navClass}
-            onClick={() => setMenuOpen(false)}
-          >
-            About
-          </NavLink>
-
-          <NavLink
-            to="/settings"
-            className={navClass}
-            onClick={() => setMenuOpen(false)}
-          >
-            Settings
-          </NavLink>
+          </div>
 
         </div>
 

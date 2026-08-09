@@ -23,7 +23,6 @@ import {
 } from "chart.js";
 
 import { Pie, Bar } from "react-chartjs-2";
-import Navbar from "../components/Navbar";
 
 ChartJS.register(
   ArcElement,
@@ -281,8 +280,6 @@ function Analytics() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-
-      <Navbar />
 
       <main className="px-6 py-10">
 

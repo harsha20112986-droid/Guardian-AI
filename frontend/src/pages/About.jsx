@@ -11,13 +11,9 @@ import {
   Lock,
 } from "lucide-react";
 
-import Navbar from "../components/Navbar";
-
 function About() {
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-
-      <Navbar />
 
       <main className="px-6 py-10">
 

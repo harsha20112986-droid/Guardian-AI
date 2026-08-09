@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import Layout from "./components/Layout";
+
 import Home from "./pages/Home";
 import UrlScanner from "./pages/UrlScanner";
 import QRScanner from "./pages/QRScanner";
@@ -13,52 +15,53 @@ import NotFound from "./pages/NotFound";
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route
-          path="/"
-          element={<Home />}
-        />
+      <Layout>
+        <Routes>
 
-        <Route
-          path="/url-scanner"
-          element={<UrlScanner />}
-        />
+          <Route path="/" element={<Home />} />
 
-        <Route
-          path="/qr-scanner"
-          element={<QRScanner />}
-        />
+          <Route
+            path="/url-scanner"
+            element={<UrlScanner />}
+          />
 
-        <Route
-          path="/sms-scanner"
-          element={<SMSScanner />}
-        />
+          <Route
+            path="/qr-scanner"
+            element={<QRScanner />}
+          />
 
-        <Route
-          path="/analytics"
-          element={<Analytics />}
-        />
+          <Route
+            path="/sms-scanner"
+            element={<SMSScanner />}
+          />
 
-        <Route
-          path="/history"
-          element={<History />}
-        />
+          <Route
+            path="/analytics"
+            element={<Analytics />}
+          />
 
-        <Route
-          path="/about"
-          element={<About />}
-        />
+          <Route
+            path="/history"
+            element={<History />}
+          />
 
-        <Route
-          path="/settings"
-          element={<Settings />}
-        />
+          <Route
+            path="/about"
+            element={<About />}
+          />
 
-        <Route
-          path="*"
-          element={<NotFound />}
-        />
-      </Routes>
+          <Route
+            path="/settings"
+            element={<Settings />}
+          />
+
+          <Route
+            path="*"
+            element={<NotFound />}
+          />
+
+        </Routes>
+      </Layout>
     </BrowserRouter>
   );
 }

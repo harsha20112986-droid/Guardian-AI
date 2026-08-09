@@ -1,28 +1,39 @@
-import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import DashboardPreview from "../components/DashboardPreview";
 import Features from "../components/Features";
 import WhyGuardian from "../components/WhyGuardian";
 import TechStack from "../components/TechStack";
-import Footer from "../components/Footer";
 
 function Home() {
   return (
-    <>
-      <Navbar />
+    <div className="w-full">
 
-      <Hero />
+      {/* HERO */}
+      <section className="w-full">
+        <Hero />
+      </section>
 
-      <DashboardPreview />
+      {/* DASHBOARD */}
+      <section className="w-full py-12 md:py-16">
+        <DashboardPreview />
+      </section>
 
-      <Features />
+      {/* FEATURES */}
+      <section className="w-full py-16 md:py-20">
+        <Features />
+      </section>
 
-      <WhyGuardian />
+      {/* WHY GUARDIAN */}
+      <section className="w-full py-16 md:py-20">
+        <WhyGuardian />
+      </section>
 
-      <TechStack />
+      {/* TECHNOLOGY */}
+      <section className="w-full py-16 md:py-20">
+        <TechStack />
+      </section>
 
-      <Footer />
-    </>
+    </div>
   );
 }
 

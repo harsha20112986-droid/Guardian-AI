@@ -10,7 +10,6 @@ import { saveAs } from "file-saver";
 import { toast } from "react-toastify";
 
 import api from "../api/api";
-import Navbar from "../components/Navbar";
 
 function History() {
   const [history, setHistory] = useState([]);
@@ -292,8 +291,6 @@ function History() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-
-      <Navbar />
 
       <main className="px-6 py-10">
 
