@@ -10,6 +10,7 @@ from ml.trusted_domains import TRUSTED_DOMAINS
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 MODEL_PATH = os.path.join(
     BASE_DIR,
     "saved_models",
@@ -39,6 +40,11 @@ def get_risk_level(score: float) -> str:
 
 
 def predict_url(url: str) -> dict:
+    url = url.strip()
+
+    if not url:
+        raise ValueError("URL cannot be empty.")
+
     if is_trusted_domain(url):
         return {
             "url": url,
@@ -53,7 +59,9 @@ def predict_url(url: str) -> dict:
             ],
         }
 
-    rule_score, rule_reasons = calculate_rule_score(url)
+    rule_score, rule_reasons = calculate_rule_score(
+        url
+    )
 
     features = extract_features(url)
 
@@ -92,13 +100,32 @@ def predict_url(url: str) -> dict:
             2,
         )
 
+    reasons = list(rule_reasons)
+
+    if prediction_text == "Phishing":
+        reasons.append(
+            f"Machine learning model classified this URL as phishing with {confidence}% confidence."
+        )
+
+    else:
+        reasons.append(
+            f"Machine learning model classified this URL as legitimate with {confidence}% confidence."
+        )
+
+    if not reasons:
+        reasons.append(
+            "No major suspicious URL characteristics were detected."
+        )
+
     return {
         "url": url,
         "prediction": prediction_text,
         "confidence": confidence,
         "rule_score": rule_score,
         "final_score": final_score,
-        "risk_level": get_risk_level(final_score),
+        "risk_level": get_risk_level(
+            final_score
+        ),
         "trusted_domain": False,
-        "reasons": rule_reasons,
+        "reasons": reasons,
     }

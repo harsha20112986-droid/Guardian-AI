@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ShieldCheck,
   CheckCircle,
@@ -16,7 +16,15 @@ function VerifyEmail() {
   const [status, setStatus] = useState("loading");
   const [message, setMessage] = useState("");
 
+  const verificationStarted = useRef(false);
+
   useEffect(() => {
+    if (verificationStarted.current) {
+      return;
+    }
+
+    verificationStarted.current = true;
+
     const verifyEmail = async () => {
       if (!token) {
         setStatus("error");

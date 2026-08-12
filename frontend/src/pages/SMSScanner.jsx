@@ -510,6 +510,47 @@ function SMSScanner() {
                   </p>
 
                 </div>
+                {/* Detection Confidence */}
+
+<div className="rounded-2xl border border-[#E1EAE5] bg-white p-5">
+  <div className="mb-3 flex items-center justify-between">
+    <div className="flex items-center gap-2">
+      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-50">
+        <Brain
+          size={18}
+          className="text-purple-600"
+        />
+      </div>
+
+      <span className="font-semibold text-[#29352F]">
+        Detection Confidence
+      </span>
+    </div>
+
+    <span className="font-bold text-purple-600">
+      {Number(result?.confidence || 0).toFixed(2)}%
+    </span>
+  </div>
+
+  <div className="h-3 w-full overflow-hidden rounded-full bg-[#E5EBE7]">
+    <div
+      className="h-full rounded-full bg-purple-500 transition-all duration-700"
+      style={{
+        width: `${Math.min(
+          100,
+          Math.max(
+            0,
+            Number(result?.confidence || 0)
+          )
+        )}%`,
+      }}
+    />
+  </div>
+
+  <p className="mt-3 text-xs leading-5 text-[#7A8780]">
+    Confidence based on the available SMS and embedded URL analysis.
+  </p>
+</div>
 
                 {/* Risk Level */}
 

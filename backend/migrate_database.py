@@ -92,11 +92,29 @@ def main():
             "DATETIME",
         )
 
+        add_column(
+            cursor,
+            "users",
+            "password_reset_token",
+            "TEXT",
+        )
+
+        add_column(
+            cursor,
+            "users",
+            "password_reset_token_expires",
+            "DATETIME",
+        )
+
         connection.commit()
 
-        print("\nDatabase migration completed successfully.")
+        print(
+            "\nDatabase migration completed successfully."
+        )
 
-        print("\nCurrent users table columns:")
+        print(
+            "\nCurrent users table columns:"
+        )
 
         cursor.execute(
             "PRAGMA table_info(users)"

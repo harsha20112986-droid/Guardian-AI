@@ -7,6 +7,9 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import VerifyEmail from "./pages/VerifyEmail";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import AdminRoute from "./components/AdminRoute";
 import AdminDashboard from "./pages/AdminDashboard";
 import UrlScanner from "./pages/UrlScanner";
 import QRScanner from "./pages/QRScanner";
@@ -35,6 +38,16 @@ function App() {
         <Route
           path="/verify-email"
           element={<VerifyEmail />}
+        />
+
+        <Route
+          path="/forgot-password"
+          element={<ForgotPassword />}
+        />
+
+        <Route
+          path="/reset-password"
+          element={<ResetPassword />}
         />
 
         <Route
@@ -121,7 +134,11 @@ function App() {
 
           <Route
             path="/admin"
-            element={<AdminDashboard />}
+            element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            }
           />
         </Route>
 

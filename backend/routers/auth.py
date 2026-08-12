@@ -32,16 +32,20 @@ router = APIRouter(
 )
 
 
-SECRET_KEY = os.getenv(
-    "GUARDIAN_SECRET_KEY",
-    "guardian-ai-secret-key-change-this",
-)
+SECRET_KEY = os.getenv("GUARDIAN_SECRET_KEY")
+
+if not SECRET_KEY:
+    raise RuntimeError(
+        "GUARDIAN_SECRET_KEY is missing from the .env file."
+    )
 
 ALGORITHM = "HS256"
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 
 VERIFICATION_TOKEN_EXPIRE_MINUTES = 30
+
+PASSWORD_RESET_TOKEN_EXPIRE_MINUTES = 30
 
 
 GMAIL_ADDRESS = os.getenv(
@@ -82,6 +86,15 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
+
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
@@ -113,6 +126,10 @@ def validate_email_domain(email: str) -> str:
 
 
 def create_verification_token() -> str:
+    return secrets.token_urlsafe(48)
+
+
+def create_password_reset_token() -> str:
     return secrets.token_urlsafe(48)
 
 
@@ -161,6 +178,83 @@ To activate your account, please verify your email address using the link below:
 This verification link will expire in {VERIFICATION_TOKEN_EXPIRE_MINUTES} minutes.
 
 If you did not create a Guardian AI account, you can safely ignore this email.
+
+Regards,
+
+Guardian AI Security Team
+AI Cybersecurity Platform
+"""
+    )
+
+    try:
+        with smtplib.SMTP_SSL(
+            "smtp.gmail.com",
+            465,
+            timeout=20,
+        ) as smtp:
+
+            smtp.login(
+                GMAIL_ADDRESS,
+                GMAIL_APP_PASSWORD,
+            )
+
+            smtp.send_message(message)
+
+    except smtplib.SMTPAuthenticationError:
+        raise RuntimeError(
+            "Gmail authentication failed. Check the Gmail address and App Password."
+        )
+
+    except smtplib.SMTPException as error:
+        raise RuntimeError(
+            f"Gmail SMTP error: {str(error)}"
+        )
+
+
+def send_password_reset_email(
+    recipient_email: str,
+    recipient_name: str,
+    reset_token: str,
+):
+    if not GMAIL_ADDRESS:
+        raise RuntimeError(
+            "GMAIL_ADDRESS is missing in the .env file."
+        )
+
+    if not GMAIL_APP_PASSWORD:
+        raise RuntimeError(
+            "GMAIL_APP_PASSWORD is missing in the .env file."
+        )
+
+    reset_link = (
+        f"{FRONTEND_URL}/reset-password"
+        f"?token={reset_token}"
+    )
+
+    message = EmailMessage()
+
+    message["Subject"] = "Reset your Guardian AI password"
+
+    message["From"] = (
+        f"Guardian AI Security Team <{GMAIL_ADDRESS}>"
+    )
+
+    message["To"] = recipient_email
+
+    message.set_content(
+        f"""
+Hello {recipient_name},
+
+We received a request to reset your Guardian AI password.
+
+Use the link below to create a new password:
+
+{reset_link}
+
+This password reset link will expire in {PASSWORD_RESET_TOKEN_EXPIRE_MINUTES} minutes.
+
+If you did not request a password reset, you can safely ignore this email.
+Your current password will remain unchanged.
 
 Regards,
 
@@ -309,7 +403,6 @@ def signup(
     )
 
     if existing_user:
-
         if not existing_user.email_verified:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -438,6 +531,8 @@ def verify_email(
         )
 
     user.email_verified = True
+    user.verification_token = None
+    user.verification_token_expires = None
 
     db.commit()
     db.refresh(user)
@@ -513,4 +608,148 @@ def login(
             "role": user.role,
             "email_verified": user.email_verified,
         },
+    }
+
+
+@router.post("/forgot-password")
+def forgot_password(
+    data: ForgotPasswordRequest,
+    db: Session = Depends(get_db),
+):
+    normalized_email = validate_email_domain(
+        str(data.email)
+    )
+
+    user = (
+        db.query(User)
+        .filter(
+            User.email == normalized_email
+        )
+        .first()
+    )
+
+    generic_message = (
+        "If an account with this email exists, "
+        "a password reset link has been sent."
+    )
+
+    if user is None:
+        return {
+            "message": generic_message
+        }
+
+    if not user.email_verified:
+        return {
+            "message": generic_message
+        }
+
+    reset_token = create_password_reset_token()
+
+    reset_expiry = (
+        datetime.now(timezone.utc)
+        + timedelta(
+            minutes=PASSWORD_RESET_TOKEN_EXPIRE_MINUTES
+        )
+    )
+
+    user.password_reset_token = reset_token
+    user.password_reset_token_expires = reset_expiry
+
+    db.commit()
+
+    try:
+        send_password_reset_email(
+            recipient_email=user.email,
+            recipient_name=user.name,
+            reset_token=reset_token,
+        )
+
+    except Exception as error:
+        print(
+            "Failed to send password reset email:",
+            error,
+        )
+
+        user.password_reset_token = None
+        user.password_reset_token_expires = None
+
+        db.commit()
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=(
+                "Password reset email could not be sent. "
+                "Please try again later."
+            ),
+        )
+
+    return {
+        "message": generic_message
+    }
+
+
+@router.post("/reset-password")
+def reset_password(
+    data: ResetPasswordRequest,
+    db: Session = Depends(get_db),
+):
+    if len(data.new_password) < 8:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must contain at least 8 characters.",
+        )
+
+    user = (
+        db.query(User)
+        .filter(
+            User.password_reset_token == data.token
+        )
+        .first()
+    )
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired password reset link.",
+        )
+
+    expiry = user.password_reset_token_expires
+
+    if expiry is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired password reset link.",
+        )
+
+    if expiry.tzinfo is None:
+        expiry = expiry.replace(
+            tzinfo=timezone.utc
+        )
+
+    if expiry < datetime.now(timezone.utc):
+        user.password_reset_token = None
+        user.password_reset_token_expires = None
+
+        db.commit()
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password reset link has expired.",
+        )
+
+    user.password_hash = hash_password(
+        data.new_password
+    )
+
+    user.password_reset_token = None
+    user.password_reset_token_expires = None
+
+    db.commit()
+    db.refresh(user)
+
+    return {
+        "message": (
+            "Password reset successfully. "
+            "You can now log in with your new password."
+        )
     }

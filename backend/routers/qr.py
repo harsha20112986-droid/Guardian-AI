@@ -30,6 +30,12 @@ async def scan_qr(
 ):
     image_bytes = await file.read()
 
+    if not image_bytes:
+        raise HTTPException(
+            status_code=400,
+            detail="Uploaded image is empty.",
+        )
+
     url = extract_qr_url(image_bytes)
 
     if not url:
@@ -38,11 +44,11 @@ async def scan_qr(
             detail="No QR code found in the uploaded image.",
         )
 
-    # Save QR scan under the logged-in user
     result = scan_url(
         url,
         db,
         current_user.id,
+        scan_type="QR",
     )
 
     return {

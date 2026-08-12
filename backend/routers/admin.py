@@ -176,7 +176,7 @@ def get_scans(
 
 
 @router.patch("/users/{user_id}/role")
-def update_user_role(
+def change_user_role(
     user_id: int,
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
@@ -200,40 +200,17 @@ def update_user_role(
         )
 
     if user.role == "admin":
-        admin_count = (
-            db.query(User)
-            .filter(User.role == "admin")
-            .count()
-        )
-
-        if admin_count <= 1:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Cannot remove the last admin account.",
-            )
-
         user.role = "user"
-
-        db.commit()
-        db.refresh(user)
-
-        return {
-            "message": "User role changed to user.",
-            "user": {
-                "id": user.id,
-                "name": user.name,
-                "email": user.email,
-                "role": user.role,
-            },
-        }
-
-    user.role = "admin"
+        new_role = "user"
+    else:
+        user.role = "admin"
+        new_role = "admin"
 
     db.commit()
     db.refresh(user)
 
     return {
-        "message": "User role changed to admin.",
+        "message": f"User role changed to {new_role}.",
         "user": {
             "id": user.id,
             "name": user.name,
@@ -241,8 +218,6 @@ def update_user_role(
             "role": user.role,
         },
     }
-
-
 @router.delete("/users/{user_id}")
 def delete_user(
     user_id: int,

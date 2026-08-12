@@ -15,10 +15,6 @@ from sqlalchemy.orm import relationship
 from database import Base
 
 
-# ============================================================
-# USER MODEL
-# ============================================================
-
 class User(Base):
     __tablename__ = "users"
 
@@ -45,21 +41,11 @@ class User(Base):
         nullable=False,
     )
 
-    # --------------------------------------------------------
-    # USER ROLE
-    # user = normal registered user
-    # admin = administrator
-    # --------------------------------------------------------
-
     role = Column(
         String,
         default="user",
         nullable=False,
     )
-
-    # --------------------------------------------------------
-    # EMAIL VERIFICATION
-    # --------------------------------------------------------
 
     email_verified = Column(
         Boolean,
@@ -79,14 +65,22 @@ class User(Base):
         nullable=True,
     )
 
+    password_reset_token = Column(
+        String,
+        nullable=True,
+        unique=True,
+        index=True,
+    )
+
+    password_reset_token_expires = Column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
     created_at = Column(
         DateTime(timezone=True),
         server_default=func.now(),
     )
-
-    # --------------------------------------------------------
-    # USER SCAN HISTORY
-    # --------------------------------------------------------
 
     scans = relationship(
         "ScanHistory",
@@ -94,10 +88,6 @@ class User(Base):
         cascade="all, delete-orphan",
     )
 
-
-# ============================================================
-# SCAN HISTORY MODEL
-# ============================================================
 
 class ScanHistory(Base):
     __tablename__ = "scan_history"
@@ -155,10 +145,6 @@ class ScanHistory(Base):
         DateTime(timezone=True),
         server_default=func.now(),
     )
-
-    # --------------------------------------------------------
-    # RELATIONSHIP TO USER
-    # --------------------------------------------------------
 
     user = relationship(
         "User",
