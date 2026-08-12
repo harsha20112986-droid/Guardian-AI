@@ -8,9 +8,9 @@ import {
   ShieldAlert,
   ScanLine,
   Sparkles,
-  Activity,
   ExternalLink,
   AlertTriangle,
+  Image as ImageIcon,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -94,11 +94,15 @@ function QRScanner() {
     setPreview(null);
   };
 
+  const normalizedPrediction =
+    String(result?.prediction || "").toLowerCase();
+
   const isLegitimate =
-    result?.prediction === "Legitimate";
+    normalizedPrediction === "legitimate" ||
+    normalizedPrediction === "safe";
 
   const isSuspicious =
-    result?.prediction === "Suspicious";
+    normalizedPrediction === "suspicious";
 
   const confidence = Math.min(
     100,
@@ -120,49 +124,80 @@ function QRScanner() {
     finalScore < 30
       ? "bg-emerald-500"
       : finalScore < 70
-      ? "bg-yellow-500"
+      ? "bg-amber-500"
       : "bg-red-500";
 
   const riskTextColor =
     finalScore < 30
-      ? "text-emerald-400"
+      ? "text-emerald-600"
       : finalScore < 70
-      ? "text-yellow-400"
-      : "text-red-400";
+      ? "text-amber-600"
+      : "text-red-600";
+
+  const statusStyle = isLegitimate
+    ? {
+        container:
+          "bg-emerald-50 border-emerald-200",
+        icon:
+          "bg-emerald-100 text-emerald-600",
+        badge:
+          "bg-emerald-100 text-emerald-700 border-emerald-200",
+      }
+    : isSuspicious
+    ? {
+        container:
+          "bg-amber-50 border-amber-200",
+        icon:
+          "bg-amber-100 text-amber-600",
+        badge:
+          "bg-amber-100 text-amber-700 border-amber-200",
+      }
+    : {
+        container:
+          "bg-red-50 border-red-200",
+        icon:
+          "bg-red-100 text-red-600",
+        badge:
+          "bg-red-100 text-red-700 border-red-200",
+      };
 
   return (
-    <main className="relative min-h-full px-4 sm:px-6 py-10 md:py-14 overflow-hidden">
+    <main className="relative min-h-full overflow-hidden bg-[#F7F9F8] px-4 py-10 sm:px-6 md:py-14">
 
-      {/* Background effects */}
+      <div className="pointer-events-none absolute right-[-140px] top-20 h-[360px] w-[360px] rounded-full bg-cyan-100/50 blur-3xl" />
 
-      <div className="absolute top-20 left-[-180px] w-[350px] h-[350px] bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="pointer-events-none absolute bottom-10 left-[-160px] h-[330px] w-[330px] rounded-full bg-emerald-100/50 blur-3xl" />
 
-      <div className="absolute bottom-20 right-[-180px] w-[350px] h-[350px] bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="max-w-5xl mx-auto relative z-10">
+      <div className="relative z-10 mx-auto max-w-5xl">
 
         {/* Header */}
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 mb-8">
+        <div className="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
 
           <div className="flex items-center gap-4">
 
-            <div className="p-3.5 bg-cyan-500/10 border border-cyan-500/20 rounded-2xl">
-
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-100 bg-cyan-50">
               <QrCode
-                size={32}
-                className="text-cyan-400"
+                size={30}
+                className="text-cyan-600"
               />
-
             </div>
 
             <div>
 
-              <h1 className="text-2xl md:text-4xl font-bold text-white">
-                QR Scanner
-              </h1>
+              <div className="flex items-center gap-2">
 
-              <p className="text-gray-400 mt-1">
+                <h1 className="text-2xl font-bold tracking-tight text-[#17201C] md:text-4xl">
+                  QR Scanner
+                </h1>
+
+                <span className="hidden rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-700 sm:inline-block">
+                  Security Tool
+                </span>
+
+              </div>
+
+              <p className="mt-1 text-sm text-[#68766F] md:text-base">
                 Scan QR codes and check their destination safely.
               </p>
 
@@ -170,32 +205,37 @@ function QRScanner() {
 
           </div>
 
-          <div className="flex items-center gap-2 text-sm text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-4 py-2 rounded-full w-fit">
-
+          <div className="flex w-fit items-center gap-2 rounded-full border border-cyan-100 bg-cyan-50 px-4 py-2 text-sm font-medium text-cyan-700">
             <ShieldCheck size={16} />
-
             QR Threat Detection
-
           </div>
 
         </div>
 
         {/* Scanner Card */}
 
-        <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl">
+        <section className="rounded-3xl border border-[#DDE8E2] bg-white p-6 shadow-[0_12px_40px_rgba(32,55,45,0.06)] md:p-8">
 
-          {/* Upload Header */}
+          <div className="mb-5 flex items-center gap-3">
 
-          <div className="flex items-center gap-2 mb-5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-50">
+              <ScanLine
+                size={20}
+                className="text-cyan-600"
+              />
+            </div>
 
-            <ScanLine
-              size={20}
-              className="text-cyan-400"
-            />
+            <div>
 
-            <h2 className="text-lg font-semibold">
-              Upload QR Code
-            </h2>
+              <h2 className="font-semibold text-[#25312B]">
+                Upload QR Code
+              </h2>
+
+              <p className="text-xs text-[#8A9690]">
+                Choose an image containing a QR code.
+              </p>
+
+            </div>
 
           </div>
 
@@ -207,48 +247,43 @@ function QRScanner() {
               group
               relative
               flex
+              min-h-[290px]
+              cursor-pointer
               flex-col
               items-center
               justify-center
-              min-h-72
+              overflow-hidden
               rounded-2xl
               border-2
               border-dashed
-              border-slate-700
-              hover:border-cyan-400
-              bg-slate-950/60
-              hover:bg-slate-900
-              cursor-pointer
-              transition-all
-              duration-300
+              border-[#CFE0D7]
+              bg-[#F8FAF9]
               p-6
-              overflow-hidden
+              transition-all
+              duration-200
+              hover:border-cyan-400
+              hover:bg-cyan-50/30
             "
           >
-
-            <div className="absolute inset-0 bg-cyan-500/[0.02] opacity-0 group-hover:opacity-100 transition-opacity" />
 
             {preview ? (
 
               <div className="relative z-10 flex flex-col items-center">
 
-                <img
-                  src={preview}
-                  alt="QR preview"
-                  className="
-                    max-h-56
-                    max-w-full
-                    rounded-xl
-                    object-contain
-                    border
-                    border-slate-700
-                    shadow-xl
-                  "
-                />
+                <div className="rounded-2xl border border-[#DDE8E2] bg-white p-3 shadow-sm">
 
-                <p className="text-cyan-400 text-sm mt-4">
+                  <img
+                    src={preview}
+                    alt="QR preview"
+                    className="max-h-56 max-w-full rounded-xl object-contain"
+                  />
+
+                </div>
+
+                <div className="mt-4 flex items-center gap-2 text-sm font-medium text-cyan-700">
+                  <ImageIcon size={16} />
                   Click to choose another image
-                </p>
+                </div>
 
               </div>
 
@@ -256,40 +291,35 @@ function QRScanner() {
 
               <div className="relative z-10 text-center">
 
-                <div className="w-20 h-20 mx-auto rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl border border-cyan-100 bg-cyan-50">
 
                   <Upload
-                    size={38}
-                    className="text-cyan-400"
+                    size={36}
+                    className="text-cyan-600"
                   />
 
                 </div>
 
-                <p className="text-xl font-bold mt-5">
+                <p className="mt-5 text-xl font-bold text-[#25312B]">
                   Upload QR Image
                 </p>
 
-                <p className="text-gray-400 mt-2">
+                <p className="mt-2 text-sm text-[#7A8780]">
                   Click here to select a QR code image
                 </p>
 
-                <div className="flex items-center justify-center gap-2 mt-4 text-xs text-gray-500">
+                <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
 
-                  <span className="px-3 py-1 bg-slate-800 rounded-full">
-                    PNG
-                  </span>
-
-                  <span className="px-3 py-1 bg-slate-800 rounded-full">
-                    JPG
-                  </span>
-
-                  <span className="px-3 py-1 bg-slate-800 rounded-full">
-                    JPEG
-                  </span>
-
-                  <span className="px-3 py-1 bg-slate-800 rounded-full">
-                    WEBP
-                  </span>
+                  {["PNG", "JPG", "JPEG", "WEBP"].map(
+                    (type) => (
+                      <span
+                        key={type}
+                        className="rounded-full border border-[#DDE8E2] bg-white px-3 py-1 text-xs font-medium text-[#718078]"
+                      >
+                        {type}
+                      </span>
+                    )
+                  )}
 
                 </div>
 
@@ -309,42 +339,41 @@ function QRScanner() {
 
           {/* Buttons */}
 
-          <div className="flex flex-col sm:flex-row gap-3 mt-6">
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
 
             <button
               type="button"
               onClick={handleScan}
               disabled={loading}
               className="
-                flex-1
                 flex
+                flex-1
                 items-center
                 justify-center
                 gap-2
-                bg-emerald-500
-                hover:bg-emerald-600
-                text-slate-950
-                py-3.5
                 rounded-xl
-                font-bold
+                bg-[#159A62]
+                py-3.5
+                font-semibold
+                text-white
                 transition-all
-                duration-300
+                duration-200
                 hover:-translate-y-0.5
-                disabled:opacity-50
+                hover:bg-[#108653]
+                hover:shadow-md
                 disabled:cursor-not-allowed
+                disabled:opacity-50
               "
             >
 
               {loading ? (
                 <>
-                  <span className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-
+                  <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
                   Scanning QR...
                 </>
               ) : (
                 <>
                   <ScanLine size={19} />
-
                   Scan QR
                 </>
               )}
@@ -356,15 +385,20 @@ function QRScanner() {
               onClick={reset}
               disabled={loading}
               className="
-                sm:w-32
-                bg-slate-700
-                hover:bg-slate-600
-                text-white
-                py-3.5
                 rounded-xl
+                border
+                border-[#D7E2DC]
+                bg-white
+                px-6
+                py-3.5
                 font-semibold
-                transition
+                text-[#52605A]
+                transition-all
+                hover:border-[#BFD9CB]
+                hover:bg-[#F7FAF8]
+                disabled:cursor-not-allowed
                 disabled:opacity-50
+                sm:w-32
               "
             >
               Clear
@@ -372,14 +406,14 @@ function QRScanner() {
 
           </div>
 
-          {/* Info */}
+          {/* Information */}
 
-          <div className="flex flex-wrap gap-4 mt-5 text-xs text-gray-500">
+          <div className="mt-5 flex flex-wrap gap-4 text-xs text-[#7A8780]">
 
             <span className="flex items-center gap-1.5">
               <ShieldCheck
                 size={14}
-                className="text-emerald-400"
+                className="text-emerald-600"
               />
               AI URL Analysis
             </span>
@@ -387,7 +421,7 @@ function QRScanner() {
             <span className="flex items-center gap-1.5">
               <Sparkles
                 size={14}
-                className="text-purple-400"
+                className="text-purple-600"
               />
               Risk Scoring
             </span>
@@ -395,7 +429,7 @@ function QRScanner() {
             <span className="flex items-center gap-1.5">
               <ShieldCheck
                 size={14}
-                className="text-cyan-400"
+                className="text-cyan-600"
               />
               Safe QR Inspection
             </span>
@@ -405,51 +439,36 @@ function QRScanner() {
           {/* Result */}
 
           {result && (
-
-            <div className="mt-8 bg-slate-950/60 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
+            <div className="mt-8 overflow-hidden rounded-3xl border border-[#DDE8E2] bg-white shadow-[0_10px_35px_rgba(32,55,45,0.05)]">
 
               {/* Result Header */}
 
               <div
-                className={`p-6 md:p-8 border-b ${
-                  isLegitimate
-                    ? "bg-emerald-500/10 border-emerald-500/20"
-                    : isSuspicious
-                    ? "bg-yellow-500/10 border-yellow-500/20"
-                    : "bg-red-500/10 border-red-500/20"
-                }`}
+                className={`border-b p-6 md:p-8 ${statusStyle.container}`}
               >
 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+                <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
 
                   <div className="flex items-center gap-4">
 
                     <div
-                      className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
-                        isLegitimate
-                          ? "bg-emerald-500/10 text-emerald-400"
-                          : isSuspicious
-                          ? "bg-yellow-500/10 text-yellow-400"
-                          : "bg-red-500/10 text-red-400"
-                      }`}
+                      className={`flex h-14 w-14 items-center justify-center rounded-2xl ${statusStyle.icon}`}
                     >
-
                       {isLegitimate ? (
-                        <ShieldCheck size={32} />
+                        <ShieldCheck size={30} />
                       ) : (
-                        <ShieldAlert size={32} />
+                        <ShieldAlert size={30} />
                       )}
-
                     </div>
 
                     <div>
 
-                      <h2 className="text-2xl md:text-3xl font-bold">
+                      <h2 className="text-2xl font-bold text-[#17201C] md:text-3xl">
                         Scan Result
                       </h2>
 
-                      <p className="text-gray-400 mt-1">
-                        AI Security Analysis
+                      <p className="mt-1 text-sm text-[#68766F]">
+                        QR security analysis completed
                       </p>
 
                     </div>
@@ -457,13 +476,7 @@ function QRScanner() {
                   </div>
 
                   <span
-                    className={`px-5 py-2.5 rounded-full font-bold text-sm w-fit ${
-                      isLegitimate
-                        ? "bg-emerald-500 text-slate-950"
-                        : isSuspicious
-                        ? "bg-yellow-500 text-slate-950"
-                        : "bg-red-500 text-white"
-                    }`}
+                    className={`w-fit rounded-full border px-4 py-2 text-sm font-semibold ${statusStyle.badge}`}
                   >
                     {result.prediction || "Unknown"}
                   </span>
@@ -474,22 +487,22 @@ function QRScanner() {
 
               {/* Result Content */}
 
-              <div className="p-6 md:p-8 space-y-8">
+              <div className="space-y-6 p-6 md:p-8">
 
                 {/* Decoded URL */}
 
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                <div className="rounded-2xl border border-[#E1EAE5] bg-[#F8FAF9] p-5">
 
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
 
                     <div className="flex items-center gap-2">
 
                       <ExternalLink
                         size={18}
-                        className="text-cyan-400"
+                        className="text-cyan-600"
                       />
 
-                      <h3 className="font-semibold">
+                      <h3 className="font-semibold text-[#25312B]">
                         Decoded URL
                       </h3>
 
@@ -501,61 +514,62 @@ function QRScanner() {
                       disabled={!result.decoded_url}
                       className="
                         flex
+                        w-fit
                         items-center
                         justify-center
                         gap-2
-                        text-sm
-                        text-gray-300
-                        bg-slate-800
-                        hover:bg-slate-700
+                        rounded-lg
                         border
-                        border-slate-700
+                        border-[#D7E2DC]
+                        bg-white
                         px-3
                         py-2
-                        rounded-lg
+                        text-sm
+                        font-medium
+                        text-[#52605A]
                         transition
+                        hover:border-[#BFD9CB]
+                        hover:text-[#159A62]
                         disabled:opacity-40
                       "
                     >
-
                       <Copy size={15} />
-
                       Copy URL
-
                     </button>
 
                   </div>
 
-                  <p className="mt-4 break-all text-cyan-400 leading-7">
-                    {result.decoded_url || "No URL decoded"}
+                  <p className="mt-4 break-all rounded-xl border border-[#E1EAE5] bg-white px-4 py-3 text-sm leading-6 text-[#52605A]">
+                    {result.decoded_url ||
+                      "No URL decoded"}
                   </p>
 
                 </div>
 
                 {/* Metrics */}
 
-                <div className="grid md:grid-cols-2 gap-5">
+                <div className="grid gap-5 md:grid-cols-2">
 
                   {/* Confidence */}
 
-                  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                  <div className="rounded-2xl border border-purple-100 bg-purple-50/60 p-5">
 
-                    <div className="flex justify-between mb-3">
+                    <div className="mb-3 flex justify-between">
 
-                      <span className="font-semibold">
+                      <span className="font-semibold text-[#29352F]">
                         AI Confidence
                       </span>
 
-                      <span className="font-bold text-purple-400">
+                      <span className="font-bold text-purple-600">
                         {confidence}%
                       </span>
 
                     </div>
 
-                    <div className="w-full h-3 bg-slate-700 rounded-full overflow-hidden">
+                    <div className="h-2.5 w-full overflow-hidden rounded-full bg-purple-100">
 
                       <div
-                        className="h-full bg-purple-500 rounded-full transition-all duration-700"
+                        className="h-full rounded-full bg-purple-500 transition-all duration-700"
                         style={{
                           width: `${confidence}%`,
                         }}
@@ -563,25 +577,32 @@ function QRScanner() {
 
                     </div>
 
+                    <p className="mt-3 text-xs leading-5 text-[#727B76]">
+                      Confidence of the machine learning
+                      model in this prediction.
+                    </p>
+
                   </div>
 
                   {/* Risk Score */}
 
-                  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                  <div className="rounded-2xl border border-[#E1EAE5] bg-[#F8FAF9] p-5">
 
-                    <div className="flex justify-between mb-3">
+                    <div className="mb-3 flex justify-between">
 
-                      <span className="font-semibold">
+                      <span className="font-semibold text-[#29352F]">
                         Risk Score
                       </span>
 
-                      <span className={`font-bold ${riskTextColor}`}>
+                      <span
+                        className={`font-bold ${riskTextColor}`}
+                      >
                         {finalScore}%
                       </span>
 
                     </div>
 
-                    <div className="w-full h-3 bg-slate-700 rounded-full overflow-hidden">
+                    <div className="h-2.5 w-full overflow-hidden rounded-full bg-[#E4EBE7]">
 
                       <div
                         className={`h-full rounded-full transition-all duration-700 ${riskBarColor}`}
@@ -592,38 +613,46 @@ function QRScanner() {
 
                     </div>
 
+                    <p className="mt-3 text-xs leading-5 text-[#727B76]">
+                      Combined security risk calculated
+                      from the QR analysis.
+                    </p>
+
                   </div>
 
                 </div>
 
                 {/* Risk Level */}
 
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                <div className="rounded-2xl border border-[#E1EAE5] bg-white p-5">
 
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
 
                     <div>
 
-                      <p className="text-gray-400 text-sm">
+                      <p className="text-sm text-[#7A8780]">
                         Overall Risk Level
                       </p>
 
-                      <h3 className="text-xl font-bold mt-1">
+                      <h3 className="mt-1 text-xl font-bold text-[#17201C]">
                         QR Security Assessment
                       </h3>
 
                     </div>
 
                     <span
-                      className={`px-5 py-2 rounded-full font-bold w-fit ${
+                      className={`w-fit rounded-full border px-4 py-2 text-sm font-semibold ${
                         result.risk_level === "Low"
-                          ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
-                          : result.risk_level === "Medium"
-                          ? "bg-yellow-500/15 text-yellow-400 border border-yellow-500/30"
-                          : "bg-red-500/15 text-red-400 border border-red-500/30"
+                          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                          : result.risk_level ===
+                            "Medium"
+                          ? "border-amber-200 bg-amber-50 text-amber-700"
+                          : "border-red-200 bg-red-50 text-red-700"
                       }`}
                     >
-                      {result.risk_level || "Unknown"} Risk
+                      {result.risk_level ||
+                        "Unknown"}{" "}
+                      Risk
                     </span>
 
                   </div>
@@ -634,74 +663,59 @@ function QRScanner() {
 
                 {Array.isArray(result.reasons) &&
                   result.reasons.length > 0 && (
-
                     <div>
 
-                      <div className="flex items-center gap-3 mb-4">
+                      <div className="mb-4 flex items-center gap-3">
 
-                        <div className="p-2.5 rounded-xl bg-yellow-500/10">
-
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50">
                           <AlertTriangle
-                            className="text-yellow-400"
+                            className="text-amber-600"
                             size={20}
                           />
-
                         </div>
 
                         <div>
 
-                          <h3 className="text-xl font-bold">
+                          <h3 className="text-xl font-bold text-[#17201C]">
                             Detection Reasons
                           </h3>
 
-                          <p className="text-sm text-gray-500 mt-1">
-                            Factors identified during the QR security analysis.
+                          <p className="mt-1 text-sm text-[#7A8780]">
+                            Factors identified during
+                            the QR security analysis.
                           </p>
 
                         </div>
 
                       </div>
 
-                      <div className="space-y-3">
+                      <div className="space-y-2.5">
 
                         {result.reasons.map(
                           (reason, index) => (
-
                             <div
                               key={`${reason}-${index}`}
-                              className="
-                                flex
-                                items-start
-                                gap-3
-                                bg-slate-900
-                                border
-                                border-slate-800
-                                rounded-xl
-                                px-4
-                                py-3.5
-                              "
+                              className="flex items-start gap-3 rounded-xl border border-[#E1EAE5] bg-[#FBFCFB] px-4 py-3.5"
                             >
 
-                              <span className="mt-2 w-2 h-2 rounded-full bg-yellow-400 shrink-0" />
+                              <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-amber-500" />
 
-                              <span className="text-gray-300 leading-6">
+                              <span className="text-sm leading-6 text-[#52605A]">
                                 {reason}
                               </span>
 
                             </div>
-
                           )
                         )}
 
                       </div>
 
                     </div>
-
                   )}
 
                 {/* Action */}
 
-                <div className="flex justify-end pt-2">
+                <div className="flex justify-end border-t border-[#E7EEEA] pt-6">
 
                   <button
                     type="button"
@@ -710,23 +724,21 @@ function QRScanner() {
                       flex
                       items-center
                       gap-2
-                      bg-emerald-500
-                      hover:bg-emerald-600
-                      text-slate-950
+                      rounded-xl
+                      bg-[#159A62]
                       px-6
                       py-3.5
-                      rounded-xl
-                      font-bold
+                      font-semibold
+                      text-white
                       transition-all
-                      duration-300
+                      duration-200
                       hover:-translate-y-0.5
+                      hover:bg-[#108653]
+                      hover:shadow-md
                     "
                   >
-
                     <RotateCcw size={18} />
-
                     Scan Another
-
                   </button>
 
                 </div>
@@ -734,7 +746,6 @@ function QRScanner() {
               </div>
 
             </div>
-
           )}
 
         </section>

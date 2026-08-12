@@ -7,6 +7,7 @@ import {
   Activity,
   Brain,
   ExternalLink,
+  CheckCircle2,
 } from "lucide-react";
 
 import { toast } from "react-toastify";
@@ -37,29 +38,64 @@ function ResultCard({ result, onReset }) {
     )
   );
 
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(
-        result.decoded_url || result.url || ""
-      );
-
-      toast.success("Copied to clipboard");
-    } catch (error) {
-      console.error(error);
-      toast.error("Unable to copy.");
+  const getStatus = () => {
+    if (isSafe) {
+      return {
+        title: "This URL appears safe",
+        description:
+          "No significant phishing indicators were detected during the security analysis.",
+        container:
+          "bg-emerald-50 border-emerald-200",
+        icon:
+          "bg-emerald-100 text-emerald-600",
+        badge:
+          "bg-emerald-100 text-emerald-700 border-emerald-200",
+        accent:
+          "text-emerald-600",
+      };
     }
+
+    if (isSuspicious) {
+      return {
+        title: "This URL looks suspicious",
+        description:
+          "Some indicators require caution. Review the analysis before visiting the website.",
+        container:
+          "bg-amber-50 border-amber-200",
+        icon:
+          "bg-amber-100 text-amber-600",
+        badge:
+          "bg-amber-100 text-amber-700 border-amber-200",
+        accent:
+          "text-amber-600",
+      };
+    }
+
+    return {
+      title: "Potential phishing threat detected",
+      description:
+        "The analysis identified indicators commonly associated with malicious or phishing websites.",
+      container:
+        "bg-red-50 border-red-200",
+      icon:
+        "bg-red-100 text-red-600",
+      badge:
+        "bg-red-100 text-red-700 border-red-200",
+      accent:
+        "text-red-600",
+    };
   };
 
   const getRiskColor = () => {
     if (riskScore < 30) {
-      return "text-emerald-400";
+      return "text-emerald-600";
     }
 
     if (riskScore < 70) {
-      return "text-yellow-400";
+      return "text-amber-600";
     }
 
-    return "text-red-400";
+    return "text-red-600";
   };
 
   const getRiskBarColor = () => {
@@ -68,89 +104,76 @@ function ResultCard({ result, onReset }) {
     }
 
     if (riskScore < 70) {
-      return "bg-yellow-500";
+      return "bg-amber-500";
     }
 
     return "bg-red-500";
   };
 
-  const getStatusStyles = () => {
-    if (isSafe) {
-      return {
-        container:
-          "bg-emerald-500/10 border-emerald-500/30",
-        icon:
-          "bg-emerald-500/10 text-emerald-400",
-        badge:
-          "bg-emerald-500 text-slate-950",
-      };
+  const getRiskBackground = () => {
+    if (riskScore < 30) {
+      return "bg-emerald-100";
     }
 
-    if (isSuspicious) {
-      return {
-        container:
-          "bg-yellow-500/10 border-yellow-500/30",
-        icon:
-          "bg-yellow-500/10 text-yellow-400",
-        badge:
-          "bg-yellow-500 text-slate-950",
-      };
+    if (riskScore < 70) {
+      return "bg-amber-100";
     }
 
-    return {
-      container:
-        "bg-red-500/10 border-red-500/30",
-      icon:
-        "bg-red-500/10 text-red-400",
-      badge:
-        "bg-red-500 text-white",
-    };
+    return "bg-red-100";
   };
 
-  const statusStyles = getStatusStyles();
+  const status = getStatus();
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(
+        result.decoded_url || result.url || ""
+      );
+
+      toast.success("URL copied to clipboard.");
+    } catch (error) {
+      console.error(error);
+      toast.error("Unable to copy URL.");
+    }
+  };
 
   return (
-    <div className="bg-slate-950/60 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
-
-      {/* Result Header */}
+    <div className="overflow-hidden rounded-3xl border border-[#DDE8E2] bg-white shadow-[0_12px_40px_rgba(32,55,45,0.07)]">
 
       <div
-        className={`p-6 md:p-8 border-b ${statusStyles.container}`}
+        className={`border-b px-6 py-6 md:px-8 md:py-7 ${status.container}`}
       >
-
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
 
           <div className="flex items-center gap-4">
 
             <div
-              className={`w-14 h-14 rounded-2xl flex items-center justify-center ${statusStyles.icon}`}
+              className={`flex h-14 w-14 items-center justify-center rounded-2xl ${status.icon}`}
             >
-
               {isSafe ? (
-                <ShieldCheck size={32} />
+                <ShieldCheck size={30} />
               ) : (
-                <ShieldAlert size={32} />
+                <ShieldAlert size={30} />
               )}
-
             </div>
 
             <div>
 
               <div className="flex items-center gap-2">
 
-                <h2 className="text-2xl md:text-3xl font-bold text-white">
+                <h2 className="text-xl font-bold tracking-tight text-[#17201C] md:text-2xl">
                   Scan Result
                 </h2>
 
                 <Activity
-                  size={18}
-                  className="text-gray-500"
+                  size={17}
+                  className="text-[#8A9690]"
                 />
 
               </div>
 
-              <p className="text-gray-400 mt-1">
-                AI Security Analysis
+              <p className="mt-1 text-sm text-[#68766F]">
+                AI security analysis completed
               </p>
 
             </div>
@@ -158,35 +181,55 @@ function ResultCard({ result, onReset }) {
           </div>
 
           <span
-            className={`px-5 py-2.5 rounded-full font-bold text-sm w-fit ${statusStyles.badge}`}
+            className={`w-fit rounded-full border px-4 py-2 text-sm font-semibold ${status.badge}`}
           >
             {result.prediction}
           </span>
 
         </div>
-
       </div>
 
-      {/* Content */}
+      <div className="space-y-6 p-6 md:p-8">
 
-      <div className="p-6 md:p-8 space-y-8">
+        <div className="flex items-start gap-4 rounded-2xl border border-[#E1EAE5] bg-[#F7FAF8] p-5">
 
-        {/* URL */}
+          <div
+            className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${status.icon}`}
+          >
+            {isSafe ? (
+              <CheckCircle2 size={21} />
+            ) : (
+              <AlertTriangle size={21} />
+            )}
+          </div>
+
+          <div>
+
+            <h3 className="font-semibold text-[#17201C]">
+              {status.title}
+            </h3>
+
+            <p className="mt-1 text-sm leading-6 text-[#68766F]">
+              {status.description}
+            </p>
+
+          </div>
+
+        </div>
 
         {(result.url || result.decoded_url) && (
+          <div className="rounded-2xl border border-[#E1EAE5] bg-white p-5">
 
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 
               <div className="flex items-center gap-2">
 
                 <ExternalLink
                   size={18}
-                  className="text-emerald-400"
+                  className="text-[#159A62]"
                 />
 
-                <h3 className="font-semibold text-white">
+                <h3 className="font-semibold text-[#25312B]">
                   Analyzed URL
                 </h3>
 
@@ -195,73 +238,54 @@ function ResultCard({ result, onReset }) {
               <button
                 type="button"
                 onClick={copyToClipboard}
-                className="
-                  flex
-                  items-center
-                  justify-center
-                  gap-2
-                  text-sm
-                  text-gray-300
-                  bg-slate-800
-                  hover:bg-slate-700
-                  border
-                  border-slate-700
-                  px-3
-                  py-2
-                  rounded-lg
-                  transition
-                "
+                className="flex w-fit items-center justify-center gap-2 rounded-lg border border-[#D7E2DC] bg-white px-3 py-2 text-sm font-medium text-[#52605A] transition-all hover:border-[#BFD9CB] hover:bg-[#F7FAF8] hover:text-[#159A62]"
               >
-
                 <Copy size={15} />
-
                 Copy URL
-
               </button>
 
             </div>
 
-            <p className="text-emerald-400 break-all mt-4 leading-7">
-              {result.decoded_url || result.url}
-            </p>
+            <div className="mt-4 break-all rounded-xl border border-[#E7EEEA] bg-[#F7FAF8] px-4 py-3">
+              <p className="text-sm leading-6 text-[#405049]">
+                {result.decoded_url || result.url}
+              </p>
+            </div>
 
           </div>
-
         )}
 
-        {/* Summary */}
+        <div className="grid gap-4 md:grid-cols-2">
 
-        <div className="grid md:grid-cols-2 gap-5">
+          <div className="rounded-2xl border border-purple-100 bg-purple-50/60 p-5">
 
-          {/* Confidence */}
-
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-
-            <div className="flex items-center justify-between mb-3">
+            <div className="mb-4 flex items-center justify-between">
 
               <div className="flex items-center gap-2">
 
-                <Brain
-                  size={18}
-                  className="text-purple-400"
-                />
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-100">
+                  <Brain
+                    size={18}
+                    className="text-purple-600"
+                  />
+                </div>
 
-                <span className="font-semibold">
+                <span className="font-semibold text-[#29352F]">
                   AI Confidence
                 </span>
 
               </div>
 
-              <span className="font-bold text-purple-400">
+              <span className="font-bold text-purple-600">
                 {confidence}%
               </span>
 
             </div>
 
-            <div className="w-full h-3 bg-slate-700 rounded-full overflow-hidden">
+            <div className="h-2.5 w-full overflow-hidden rounded-full bg-purple-100">
 
               <div
-                className="h-full bg-purple-500 rounded-full transition-all duration-700"
+                className="h-full rounded-full bg-purple-500 transition-all duration-700"
                 style={{
                   width: `${confidence}%`,
                 }}
@@ -269,26 +293,36 @@ function ResultCard({ result, onReset }) {
 
             </div>
 
-            <p className="text-xs text-gray-500 mt-3">
-              Model confidence in the predicted classification.
+            <p className="mt-3 text-xs leading-5 text-[#727B76]">
+              Confidence of the machine learning model in this prediction.
             </p>
 
           </div>
 
-          {/* Risk */}
+          <div
+            className={`rounded-2xl border border-[#E1EAE5] p-5 ${
+              riskScore < 30
+                ? "bg-emerald-50/60"
+                : riskScore < 70
+                ? "bg-amber-50/60"
+                : "bg-red-50/60"
+            }`}
+          >
 
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-
-            <div className="flex items-center justify-between mb-3">
+            <div className="mb-4 flex items-center justify-between">
 
               <div className="flex items-center gap-2">
 
-                <Activity
-                  size={18}
-                  className={getRiskColor()}
-                />
+                <div
+                  className={`flex h-9 w-9 items-center justify-center rounded-lg ${getRiskBackground()}`}
+                >
+                  <Activity
+                    size={18}
+                    className={getRiskColor()}
+                  />
+                </div>
 
-                <span className="font-semibold">
+                <span className="font-semibold text-[#29352F]">
                   Risk Score
                 </span>
 
@@ -300,7 +334,7 @@ function ResultCard({ result, onReset }) {
 
             </div>
 
-            <div className="w-full h-3 bg-slate-700 rounded-full overflow-hidden">
+            <div className="h-2.5 w-full overflow-hidden rounded-full bg-[#E5EBE7]">
 
               <div
                 className={`h-full rounded-full transition-all duration-700 ${getRiskBarColor()}`}
@@ -311,39 +345,37 @@ function ResultCard({ result, onReset }) {
 
             </div>
 
-            <p className="text-xs text-gray-500 mt-3">
-              Combined security risk based on the scan analysis.
+            <p className="mt-3 text-xs leading-5 text-[#727B76]">
+              Combined security risk calculated from the scan analysis.
             </p>
 
           </div>
 
         </div>
 
-        {/* Risk Level */}
+        <div className="rounded-2xl border border-[#E1EAE5] bg-[#F8FAF9] p-5">
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
             <div>
 
-              <p className="text-gray-400 text-sm">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[#7A8780]">
                 Overall Risk Level
               </p>
 
-              <h3 className="text-xl font-bold mt-1">
+              <h3 className="mt-1 text-lg font-bold text-[#17201C]">
                 Security Assessment
               </h3>
 
             </div>
 
             <span
-              className={`px-5 py-2 rounded-full font-bold w-fit ${
+              className={`w-fit rounded-full border px-4 py-2 text-sm font-semibold ${
                 result.risk_level === "Low"
-                  ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
                   : result.risk_level === "Medium"
-                  ? "bg-yellow-500/15 text-yellow-400 border border-yellow-500/30"
-                  : "bg-red-500/15 text-red-400 border border-red-500/30"
+                  ? "border-amber-200 bg-amber-50 text-amber-700"
+                  : "border-red-200 bg-red-50 text-red-700"
               }`}
             >
               {result.risk_level || "Unknown"} Risk
@@ -353,30 +385,25 @@ function ResultCard({ result, onReset }) {
 
         </div>
 
-        {/* Reasons */}
-
         {result.reasons?.length > 0 && (
-
           <div>
 
-            <div className="flex items-center gap-3 mb-4">
+            <div className="mb-4 flex items-center gap-3">
 
-              <div className="p-2.5 rounded-xl bg-yellow-500/10">
-
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50">
                 <AlertTriangle
-                  className="text-yellow-400"
-                  size={20}
+                  size={19}
+                  className="text-amber-600"
                 />
-
               </div>
 
               <div>
 
-                <h3 className="text-xl font-bold">
+                <h3 className="text-lg font-bold text-[#17201C]">
                   Detection Reasons
                 </h3>
 
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="mt-0.5 text-sm text-[#718078]">
                   Factors identified during the security analysis.
                 </p>
 
@@ -384,70 +411,37 @@ function ResultCard({ result, onReset }) {
 
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2.5">
 
               {result.reasons.map((reason, index) => (
-
                 <div
                   key={index}
-                  className="
-                    flex
-                    items-start
-                    gap-3
-                    bg-slate-900
-                    border
-                    border-slate-800
-                    rounded-xl
-                    px-4
-                    py-3.5
-                  "
+                  className="flex items-start gap-3 rounded-xl border border-[#E4EBE7] bg-white px-4 py-3.5"
                 >
 
-                  <span className="mt-1 w-2 h-2 rounded-full bg-yellow-400 shrink-0" />
+                  <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-amber-500" />
 
-                  <span className="text-gray-300 leading-6">
+                  <span className="text-sm leading-6 text-[#52605A]">
                     {reason}
                   </span>
 
                 </div>
-
               ))}
 
             </div>
 
           </div>
-
         )}
 
-        {/* Action */}
-
-        <div className="flex flex-col sm:flex-row justify-end gap-3 pt-2">
+        <div className="flex flex-col gap-3 border-t border-[#E7EEEA] pt-6 sm:flex-row sm:justify-end">
 
           <button
             type="button"
             onClick={onReset}
-            className="
-              flex
-              items-center
-              justify-center
-              gap-2
-              bg-emerald-500
-              hover:bg-emerald-600
-              text-slate-950
-              px-6
-              py-3.5
-              rounded-xl
-              font-bold
-              transition-all
-              duration-300
-              hover:-translate-y-0.5
-            "
+            className="flex items-center justify-center gap-2 rounded-xl bg-[#159A62] px-6 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#108653] hover:shadow-md"
           >
-
-            <RotateCcw size={18} />
-
-            Scan Another
-
+            <RotateCcw size={17} />
+            Scan Another URL
           </button>
 
         </div>

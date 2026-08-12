@@ -5,14 +5,20 @@ import App from "./App";
 import "./index.css";
 
 import { ThemeProvider } from "./context/ThemeContext";
+import { AuthProvider } from "./context/AuthContext";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+ReactDOM.createRoot(
+  document.getElementById("root")
+).render(
   <React.StrictMode>
     <ThemeProvider>
-      <App />
+
+      <AuthProvider>
+        <App />
+      </AuthProvider>
 
       <ToastContainer
         position="top-right"
@@ -24,6 +30,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         limit={3}
         theme="dark"
       />
+
     </ThemeProvider>
   </React.StrictMode>
 );

@@ -3,21 +3,14 @@ import Footer from "./Footer";
 
 function Layout({ children }) {
   return (
-    <div className="min-h-screen w-full bg-slate-950 text-white flex flex-col">
+    <div className="min-h-screen bg-[#F4F8F6] text-[#17231D] flex flex-col">
+      <Navbar />
 
-      {/* Navbar */}
-      <header className="w-full">
-        <Navbar />
-      </header>
-
-      {/* Main Content */}
-      <main className="flex-1 w-full">
+      <main className="flex-1 bg-[#F4F8F6]">
         {children}
       </main>
 
-      {/* Footer */}
       <Footer />
-
     </div>
   );
 }

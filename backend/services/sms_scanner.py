@@ -31,6 +31,7 @@ URL_REGEX = r"(https?://[^\s]+)"
 def scan_sms(
     message: str,
     db: Session,
+    user_id: int,
 ):
     score = 0
     reasons = []
@@ -132,10 +133,11 @@ def scan_sms(
     )
 
     # --------------------------------
-    # Save SMS Scan to Database
+    # Save SMS Scan
     # --------------------------------
 
     history = ScanHistory(
+        user_id=user_id,
         scan_type="SMS",
         content=message,
         prediction=history_prediction,
@@ -153,25 +155,17 @@ def scan_sms(
     db.refresh(history)
 
     # --------------------------------
-    # Return Result to Frontend
+    # Return Result
     # --------------------------------
 
     return {
         "id": history.id,
         "scan_type": "SMS",
-
         "message": message,
-
-        # Keep original SMS classification
         "prediction": prediction,
-
         "risk_level": risk,
-
         "score": score,
-
         "reasons": reasons,
-
         "url_analysis": url_result,
-
         "scanned_at": history.scanned_at,
     }

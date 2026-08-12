@@ -6,515 +6,281 @@ import {
   MessageSquare,
   ArrowRight,
   CheckCircle,
-  Activity,
   Lock,
+  ScanLine,
+  AlertCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 function Hero() {
   return (
-    <section className="relative w-full min-h-[680px] lg:min-h-[720px] flex items-center overflow-hidden">
+    <section className="relative w-full overflow-hidden bg-[#F4F8F6]">
+      <div className="absolute top-[-120px] right-[-80px] w-[420px] h-[420px] bg-[#DFF3EA] rounded-full blur-3xl opacity-70 pointer-events-none" />
 
-      {/* ================= BACKGROUND EFFECTS ================= */}
+      <div className="absolute bottom-[-150px] left-[-100px] w-[360px] h-[360px] bg-[#E8F2F8] rounded-full blur-3xl opacity-60 pointer-events-none" />
 
-      <div
-        className="
-          absolute
-          -top-40
-          -left-40
-          w-[500px]
-          h-[500px]
-          bg-emerald-500/10
-          rounded-full
-          blur-3xl
-          pointer-events-none
-        "
-      />
-
-      <div
-        className="
-          absolute
-          top-1/2
-          -right-40
-          w-[500px]
-          h-[500px]
-          bg-cyan-500/10
-          rounded-full
-          blur-3xl
-          pointer-events-none
-        "
-      />
-
-      <div
-        className="
-          absolute
-          -bottom-40
-          left-1/3
-          w-[400px]
-          h-[400px]
-          bg-purple-500/5
-          rounded-full
-          blur-3xl
-          pointer-events-none
-        "
-      />
-
-      {/* ================= HERO CONTAINER ================= */}
-
-      <div className="relative z-10 w-full max-w-5xl mx-auto px-6">
-
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-12 items-center">
-
-          {/* ================= LEFT ================= */}
-
+      <div className="relative z-10 max-w-6xl mx-auto px-6 py-16 md:py-20 lg:py-24">
+        <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-12 lg:gap-16 items-center">
           <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7 }}
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
           >
-
-            {/* Badge */}
-
-            <div
-              className="
-                inline-flex
-                items-center
-                gap-2
-                bg-emerald-500/10
-                border
-                border-emerald-500/30
-                text-emerald-400
-                px-4
-                py-2
-                rounded-full
-                text-sm
-                font-semibold
-                mb-6
-              "
-            >
-              <ShieldCheck size={17} />
-
-              AI-Powered Cybersecurity
+            <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-white border border-[#D8E9E1] text-[#138A58] text-[11px] font-semibold tracking-[0.08em] shadow-sm">
+              <ShieldCheck size={15} />
+              DIGITAL SAFETY PLATFORM
             </div>
 
-            {/* Heading */}
-
-            <h1
-              className="
-                text-5xl
-                md:text-6xl
-                lg:text-6xl
-                font-extrabold
-                text-white
-                leading-[1.04]
-                tracking-tight
-              "
-            >
-              Protect Yourself
-
-              <span className="block text-emerald-400 mt-2">
-                From Online Scams
+            <h1 className="mt-6 text-[42px] sm:text-5xl lg:text-[58px] font-semibold tracking-[-0.045em] leading-[1.04] text-[#17221D]">
+              Check before
+              <span className="block text-[#159A62] mt-1">
+                you click.
               </span>
             </h1>
 
-            {/* Description */}
-
-            <p
-              className="
-                mt-7
-                text-gray-300
-                text-base
-                md:text-lg
-                leading-8
-                max-w-lg
-              "
-            >
-              Guardian AI detects phishing websites, malicious QR codes,
-              scam SMS messages and suspicious links using Artificial
-              Intelligence and Machine Learning.
+            <p className="mt-6 max-w-xl text-[16px] md:text-[17px] leading-7 text-[#62726A]">
+              Guardian AI helps you inspect suspicious links, QR codes and
+              messages before they become a security risk.
             </p>
 
-            {/* Buttons */}
-
-            <div className="mt-9 flex flex-col sm:flex-row gap-4">
-
-              <Link to="/url-scanner">
-                <button
-                  type="button"
-                  className="
-                    w-full
-                    sm:w-auto
-                    flex
-                    items-center
-                    justify-center
-                    gap-2
-                    bg-emerald-500
-                    hover:bg-emerald-600
-                    text-slate-950
-                    px-7
-                    py-4
-                    rounded-xl
-                    font-bold
-                    shadow-lg
-                    shadow-emerald-500/10
-                    hover:shadow-emerald-500/20
-                    transition-all
-                    duration-300
-                    hover:-translate-y-1
-                  "
-                >
-                  Start Scanning
-                  <ArrowRight size={20} />
-                </button>
+            <div className="mt-8 flex flex-col sm:flex-row gap-3">
+              <Link
+                to="/url-scanner"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#159A62] hover:bg-[#108653] text-white font-semibold text-sm shadow-sm hover:shadow-md transition-all duration-200"
+              >
+                Start Scanning
+                <ArrowRight size={18} />
               </Link>
 
-              <Link to="/analytics">
-                <button
-                  type="button"
-                  className="
-                    w-full
-                    sm:w-auto
-                    border
-                    border-slate-600
-                    hover:border-emerald-400
-                    hover:bg-emerald-500/10
-                    text-white
-                    px-7
-                    py-4
-                    rounded-xl
-                    font-semibold
-                    transition-all
-                    duration-300
-                  "
-                >
-                  View Analytics
-                </button>
+              <Link
+                to="/analytics"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white border border-[#DCE7E1] hover:border-[#BBD8C9] hover:bg-[#FAFCFB] text-[#34413A] font-medium text-sm transition-all duration-200"
+              >
+                View Analytics
               </Link>
-
             </div>
 
-            {/* Trust Points */}
-
-            <div className="mt-9 grid grid-cols-2 gap-x-6 gap-y-4">
-
-              <div className="flex items-center gap-3 text-gray-300">
-
-                <CheckCircle
-                  className="text-emerald-400 shrink-0"
-                  size={20}
-                />
-
-                <span>AI Detection</span>
-
+            <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3">
+              <div className="flex items-center gap-2 text-sm text-[#68766F]">
+                <CheckCircle size={16} className="text-[#159A62]" />
+                AI Detection
               </div>
 
-              <div className="flex items-center gap-3 text-gray-300">
-
-                <CheckCircle
-                  className="text-emerald-400 shrink-0"
-                  size={20}
-                />
-
-                <span>Real-Time Analysis</span>
-
+              <div className="flex items-center gap-2 text-sm text-[#68766F]">
+                <CheckCircle size={16} className="text-[#159A62]" />
+                Risk Analysis
               </div>
 
-              <div className="flex items-center gap-3 text-gray-300">
-
-                <CheckCircle
-                  className="text-emerald-400 shrink-0"
-                  size={20}
-                />
-
-                <span>Risk Scoring</span>
-
+              <div className="flex items-center gap-2 text-sm text-[#68766F]">
+                <CheckCircle size={16} className="text-[#159A62]" />
+                Scan History
               </div>
-
-              <div className="flex items-center gap-3 text-gray-300">
-
-                <CheckCircle
-                  className="text-emerald-400 shrink-0"
-                  size={20}
-                />
-
-                <span>Secure History</span>
-
-              </div>
-
             </div>
-
           </motion.div>
 
-          {/* ================= RIGHT ================= */}
-
           <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{
-              duration: 0.8,
+              duration: 0.7,
               delay: 0.1,
             }}
             className="relative"
           >
+            <div className="relative max-w-[490px] mx-auto">
+              <div className="absolute -inset-5 bg-[#CFEDE0]/60 rounded-[34px] blur-2xl" />
 
-            {/* Main Security Card */}
-
-            <div
-              className="
-                relative
-                bg-slate-900/95
-                border
-                border-slate-700
-                rounded-3xl
-                p-6
-                shadow-2xl
-                backdrop-blur-sm
-              "
-            >
-
-              {/* Header */}
-
-              <div className="flex items-center justify-between mb-6">
-
-                <div className="flex items-center gap-3">
-
-                  <div className="p-3 rounded-xl bg-emerald-500/10">
-
-                    <ShieldCheck
-                      size={27}
-                      className="text-emerald-400"
-                    />
-
-                  </div>
-
-                  <div>
-
-                    <h2 className="font-bold text-lg">
-                      Guardian AI
-                    </h2>
-
-                    <p className="text-xs text-gray-500">
-                      Threat Detection System
-                    </p>
-
-                  </div>
-
-                </div>
-
-                <div className="flex items-center gap-2 text-emerald-400 text-sm">
-
-                  <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-
-                  Active
-
-                </div>
-
-              </div>
-
-              {/* Security Status */}
-
-              <div
-                className="
-                  bg-slate-800/80
-                  border
-                  border-slate-700
-                  rounded-2xl
-                  p-5
-                  mb-5
-                "
-              >
-
-                <div className="flex items-center justify-between">
-
+              <div className="relative bg-white border border-[#DCE8E2] rounded-[22px] shadow-[0_20px_55px_rgba(32,55,45,0.10)] p-5 md:p-6">
+                <div className="flex items-center justify-between pb-5 border-b border-[#EAF0ED]">
                   <div className="flex items-center gap-3">
-
-                    <Activity
-                      size={24}
-                      className="text-emerald-400"
-                    />
-
-                    <div>
-
-                      <p className="font-semibold">
-                        Security Status
-                      </p>
-
-                      <p className="text-sm text-gray-400">
-                        Continuous threat analysis
-                      </p>
-
+                    <div className="w-10 h-10 rounded-xl bg-[#EAF7F0] border border-[#CDE8DA] flex items-center justify-center">
+                      <ShieldCheck
+                        size={22}
+                        className="text-[#159A62]"
+                      />
                     </div>
 
+                    <div>
+                      <h2 className="text-sm font-semibold text-[#17221D]">
+                        Guardian AI
+                      </h2>
+
+                      <p className="text-xs text-[#8A9690] mt-0.5">
+                        Security check
+                      </p>
+                    </div>
                   </div>
 
-                  <span className="text-emerald-400 font-bold">
-                    Protected
-                  </span>
-
+                  <div className="flex items-center gap-2 text-xs font-medium text-[#168A55]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]" />
+                    Ready
+                  </div>
                 </div>
 
-              </div>
-
-              {/* URL Scanner */}
-
-              <Link to="/url-scanner">
-
-                <div
-                  className="
-                    bg-slate-800/80
-                    border
-                    border-slate-700
-                    hover:border-emerald-400/60
-                    rounded-2xl
-                    p-5
-                    transition-all
-                    duration-300
-                    hover:-translate-y-1
-                  "
-                >
-
-                  <div className="flex items-center gap-4">
-
-                    <div className="p-3 bg-emerald-500/10 rounded-xl">
-
-                      <Globe
-                        size={27}
-                        className="text-emerald-400"
+                <div className="mt-5 p-4 rounded-xl bg-[#F6F9F7] border border-[#E4ECE8]">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-white border border-[#DDE8E2] flex items-center justify-center">
+                      <ScanLine
+                        size={19}
+                        className="text-[#159A62]"
                       />
-
                     </div>
 
                     <div className="flex-1">
-
-                      <h3 className="font-bold text-lg">
-                        URL Scanner
-                      </h3>
-
-                      <p className="text-sm text-gray-400 mt-1">
-                        Detect phishing websites
+                      <p className="text-sm font-semibold text-[#25312B]">
+                        Security analysis
                       </p>
 
+                      <p className="text-xs text-[#8A9690] mt-1">
+                        Inspect content before trusting it.
+                      </p>
                     </div>
-
-                    <ArrowRight
-                      size={20}
-                      className="text-gray-500"
-                    />
-
                   </div>
-
                 </div>
 
-              </Link>
+                <div className="mt-4 p-4 rounded-xl bg-[#FCFEFD] border border-[#DCE8E2]">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 shrink-0 rounded-lg bg-[#EAF7F0] flex items-center justify-center">
+                        <Globe
+                          size={20}
+                          className="text-[#159A62]"
+                        />
+                      </div>
 
-              {/* QR + SMS */}
+                      <div className="min-w-0">
+                        <p className="text-xs text-[#8A9690]">
+                          Sample URL
+                        </p>
 
-              <div className="grid grid-cols-2 gap-4 mt-4">
+                        <p className="text-sm font-semibold text-[#25312B] truncate">
+                          secure-example.com
+                        </p>
+                      </div>
+                    </div>
 
-                <Link to="/qr-scanner">
+                    <span className="text-xs font-semibold text-[#159A62]">
+                      Checked
+                    </span>
+                  </div>
+                </div>
 
-                  <div
-                    className="
-                      h-full
-                      bg-slate-800/80
-                      border
-                      border-slate-700
-                      hover:border-cyan-400/60
-                      rounded-2xl
-                      p-5
-                      transition-all
-                      duration-300
-                      hover:-translate-y-1
-                    "
-                  >
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  <div className="p-4 rounded-xl bg-[#F2F8F5] border border-[#D8E9E0]">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-[#728078]">
+                        Risk score
+                      </span>
 
-                    <QrCode
-                      size={29}
-                      className="text-cyan-400 mb-4"
-                    />
+                      <CheckCircle
+                        size={16}
+                        className="text-[#159A62]"
+                      />
+                    </div>
 
-                    <h3 className="font-bold">
-                      QR Scanner
-                    </h3>
+                    <div className="mt-2 flex items-end gap-1">
+                      <span className="text-2xl font-semibold text-[#159A62]">
+                        12
+                      </span>
 
-                    <p className="text-xs text-gray-400 mt-2">
-                      Scan QR links
+                      <span className="text-xs text-[#7C8982] mb-1">
+                        / 100
+                      </span>
+                    </div>
+
+                    <p className="text-[11px] text-[#6E7C74] mt-1">
+                      Low risk
                     </p>
-
                   </div>
 
-                </Link>
+                  <div className="p-4 rounded-xl bg-[#F8F6EF] border border-[#EEE6D1]">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-[#807866]">
+                        Analysis
+                      </span>
 
-                <Link to="/sms-scanner">
+                      <Lock
+                        size={15}
+                        className="text-[#B48620]"
+                      />
+                    </div>
 
-                  <div
-                    className="
-                      h-full
-                      bg-slate-800/80
-                      border
-                      border-slate-700
-                      hover:border-orange-400/60
-                      rounded-2xl
-                      p-5
-                      transition-all
-                      duration-300
-                      hover:-translate-y-1
-                    "
-                  >
-
-                    <MessageSquare
-                      size={29}
-                      className="text-orange-400 mb-4"
-                    />
-
-                    <h3 className="font-bold">
-                      SMS Scanner
-                    </h3>
-
-                    <p className="text-xs text-gray-400 mt-2">
-                      Detect scam messages
+                    <p className="text-sm font-semibold text-[#4F493C] mt-3">
+                      No major threats
                     </p>
 
+                    <p className="text-[11px] text-[#827A6A] mt-1">
+                      Based on current checks
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-4 space-y-2">
+                  <div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-[#FAFCFB] border border-[#E9EFEC]">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle
+                        size={15}
+                        className="text-[#159A62]"
+                      />
+
+                      <span className="text-xs text-[#526159]">
+                        URL structure
+                      </span>
+                    </div>
+
+                    <span className="text-[11px] font-medium text-[#159A62]">
+                      Clear
+                    </span>
                   </div>
 
-                </Link>
+                  <div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-[#FAFCFB] border border-[#E9EFEC]">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle
+                        size={15}
+                        className="text-[#159A62]"
+                      />
 
+                      <span className="text-xs text-[#526159]">
+                        Domain signals
+                      </span>
+                    </div>
+
+                    <span className="text-[11px] font-medium text-[#159A62]">
+                      Clear
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-[#FFF9F2] border border-[#F0E2CE]">
+                    <div className="flex items-center gap-2">
+                      <AlertCircle
+                        size={15}
+                        className="text-[#C58A2B]"
+                      />
+
+                      <span className="text-xs text-[#665B4C]">
+                        Reputation
+                      </span>
+                    </div>
+
+                    <span className="text-[11px] font-medium text-[#A87924]">
+                      Review
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-5 pt-4 border-t border-[#EAF0ED] flex items-center justify-center gap-2 text-xs text-[#7F8C85]">
+                  <Lock
+                    size={14}
+                    className="text-[#159A62]"
+                  />
+
+                  Security analysis at your fingertips
+                </div>
               </div>
-
-              {/* Bottom Indicator */}
-
-              <div
-                className="
-                  flex
-                  items-center
-                  justify-center
-                  gap-2
-                  mt-6
-                  pt-5
-                  border-t
-                  border-slate-800
-                  text-sm
-                  text-gray-400
-                "
-              >
-
-                <Lock
-                  size={16}
-                  className="text-emerald-400"
-                />
-
-                AI-powered threat protection
-
-              </div>
-
             </div>
-
           </motion.div>
-
         </div>
-
       </div>
-
     </section>
   );
 }
