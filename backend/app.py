@@ -1,5 +1,6 @@
 import os
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -15,6 +16,13 @@ from routers.admin import router as admin_router
 
 
 # ==========================================
+# LOAD ENVIRONMENT VARIABLES
+# ==========================================
+
+load_dotenv()
+
+
+# ==========================================
 # DATABASE INITIALIZATION
 # ==========================================
 
@@ -27,6 +35,8 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Guardian AI API",
+    description="AI-Powered Digital Safety & Threat Detection Platform",
+    version="1.0.0",
 )
 
 
@@ -37,11 +47,16 @@ app = FastAPI(
 frontend_url = os.getenv(
     "FRONTEND_URL",
     "http://localhost:5173",
-)
+).rstrip("/")
+
 
 allowed_origins = [
     "http://localhost:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:5174",
 ]
+
 
 if frontend_url and frontend_url not in allowed_origins:
     allowed_origins.append(frontend_url)
@@ -57,7 +72,7 @@ app.add_middleware(
 
 
 # ==========================================
-# API ROUTERS
+# API ROUTES
 # ==========================================
 
 app.include_router(url_router)
@@ -69,7 +84,7 @@ app.include_router(admin_router)
 
 
 # ==========================================
-# HEALTH / HOME ENDPOINT
+# ROOT ENDPOINT
 # ==========================================
 
 @app.get("/")
