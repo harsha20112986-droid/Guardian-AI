@@ -1,42 +1,76 @@
-# Environment variables
+# ==========================================
+# Environment Variables / Secrets
+# ==========================================
+
 .env
 .env.*
 !.env.example
 
+
+# ==========================================
 # Python
+# ==========================================
+
 __pycache__/
 *.py[cod]
 *.pyo
+
 .venv/
 venv/
 env/
 
+
+# ==========================================
 # Database
+# ==========================================
+
 *.db
 *.sqlite
 *.sqlite3
 
-# Machine learning artifacts
-*.pkl
-*.joblib
 
-# Node
+# ==========================================
+# Machine Learning
+# ==========================================
+
+# Keep trained model files in Git because
+# the deployed backend requires the model.
+# Do NOT ignore *.pkl.
+
+
+# ==========================================
+# Node / Frontend
+# ==========================================
+
 node_modules/
+frontend/node_modules/
+
 npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
 
-# Frontend build
-dist/
-build/
+frontend/dist/
+frontend/build/
 
+
+# ==========================================
 # IDE
+# ==========================================
+
 .vscode/
 .idea/
 
+
+# ==========================================
 # OS
+# ==========================================
+
 .DS_Store
 Thumbs.db
 
+
+# ==========================================
 # Logs
+# ==========================================
+
 *.log
