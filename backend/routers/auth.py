@@ -23,14 +23,26 @@ from database import get_db
 from models import User
 
 
+# ==========================================
+# LOAD ENVIRONMENT VARIABLES
+# ==========================================
+
 load_dotenv()
 
+
+# ==========================================
+# ROUTER
+# ==========================================
 
 router = APIRouter(
     prefix="/auth",
     tags=["Authentication"],
 )
 
+
+# ==========================================
+# CONFIGURATION
+# ==========================================
 
 SECRET_KEY = os.getenv("GUARDIAN_SECRET_KEY")
 
@@ -43,10 +55,12 @@ ALGORITHM = "HS256"
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 
-VERIFICATION_TOKEN_EXPIRE_MINUTES = 30
-
 PASSWORD_RESET_TOKEN_EXPIRE_MINUTES = 30
 
+
+# ==========================================
+# EMAIL CONFIGURATION
+# ==========================================
 
 GMAIL_ADDRESS = os.getenv(
     "GMAIL_ADDRESS",
@@ -64,16 +78,28 @@ FRONTEND_URL = os.getenv(
 )
 
 
+# ==========================================
+# PASSWORD HASHING
+# ==========================================
+
 pwd_context = CryptContext(
     schemes=["bcrypt"],
     deprecated="auto",
 )
 
 
+# ==========================================
+# OAUTH2
+# ==========================================
+
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/auth/login"
 )
 
+
+# ==========================================
+# REQUEST SCHEMAS
+# ==========================================
 
 class SignupRequest(BaseModel):
     name: str
@@ -95,6 +121,10 @@ class ResetPasswordRequest(BaseModel):
     new_password: str
 
 
+# ==========================================
+# PASSWORD FUNCTIONS
+# ==========================================
+
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
@@ -108,6 +138,10 @@ def verify_password(
         hashed_password,
     )
 
+
+# ==========================================
+# EMAIL VALIDATION
+# ==========================================
 
 def validate_email_domain(email: str) -> str:
     try:
@@ -125,91 +159,17 @@ def validate_email_domain(email: str) -> str:
         )
 
 
-def create_verification_token() -> str:
-    return secrets.token_urlsafe(48)
-
+# ==========================================
+# TOKEN FUNCTIONS
+# ==========================================
 
 def create_password_reset_token() -> str:
     return secrets.token_urlsafe(48)
 
 
-def send_verification_email(
-    recipient_email: str,
-    recipient_name: str,
-    verification_token: str,
-):
-    if not GMAIL_ADDRESS:
-        raise RuntimeError(
-            "GMAIL_ADDRESS is missing in the .env file."
-        )
-
-    if not GMAIL_APP_PASSWORD:
-        raise RuntimeError(
-            "GMAIL_APP_PASSWORD is missing in the .env file."
-        )
-
-    verification_link = (
-        f"{FRONTEND_URL}/verify-email"
-        f"?token={verification_token}"
-    )
-
-    message = EmailMessage()
-
-    message["Subject"] = "Verify your Guardian AI account"
-
-    message["From"] = (
-        f"Guardian AI Security Team <{GMAIL_ADDRESS}>"
-    )
-
-    message["To"] = recipient_email
-
-    message.set_content(
-        f"""
-Hello {recipient_name},
-
-Welcome to Guardian AI.
-
-Thank you for creating your Guardian AI account.
-
-To activate your account, please verify your email address using the link below:
-
-{verification_link}
-
-This verification link will expire in {VERIFICATION_TOKEN_EXPIRE_MINUTES} minutes.
-
-If you did not create a Guardian AI account, you can safely ignore this email.
-
-Regards,
-
-Guardian AI Security Team
-AI Cybersecurity Platform
-"""
-    )
-
-    try:
-        with smtplib.SMTP_SSL(
-            "smtp.gmail.com",
-            465,
-            timeout=20,
-        ) as smtp:
-
-            smtp.login(
-                GMAIL_ADDRESS,
-                GMAIL_APP_PASSWORD,
-            )
-
-            smtp.send_message(message)
-
-    except smtplib.SMTPAuthenticationError:
-        raise RuntimeError(
-            "Gmail authentication failed. Check the Gmail address and App Password."
-        )
-
-    except smtplib.SMTPException as error:
-        raise RuntimeError(
-            f"Gmail SMTP error: {str(error)}"
-        )
-
+# ==========================================
+# PASSWORD RESET EMAIL
+# ==========================================
 
 def send_password_reset_email(
     recipient_email: str,
@@ -288,6 +248,10 @@ AI Cybersecurity Platform
         )
 
 
+# ==========================================
+# JWT ACCESS TOKEN
+# ==========================================
+
 def create_access_token(user_id: int):
     expire = (
         datetime.now(timezone.utc)
@@ -307,6 +271,10 @@ def create_access_token(user_id: int):
         algorithm=ALGORITHM,
     )
 
+
+# ==========================================
+# CURRENT USER
+# ==========================================
 
 def get_current_user(
     token: str = Depends(oauth2_scheme),
@@ -353,6 +321,10 @@ def get_current_user(
     return user
 
 
+# ==========================================
+# CURRENT ADMIN
+# ==========================================
+
 def get_current_admin(
     current_user: User = Depends(get_current_user),
 ):
@@ -365,15 +337,21 @@ def get_current_admin(
     return current_user
 
 
+# ==========================================
+# SIGNUP
+# ==========================================
+
 @router.post("/signup")
 def signup(
     data: SignupRequest,
     db: Session = Depends(get_db),
 ):
+    # Validate and normalize email
     normalized_email = validate_email_domain(
         str(data.email)
     )
 
+    # Clean name
     name = data.name.strip()
 
     if not name:
@@ -388,12 +366,14 @@ def signup(
             detail="Name must contain at least 2 characters.",
         )
 
+    # Validate password
     if len(data.password) < 8:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Password must contain at least 8 characters.",
         )
 
+    # Check whether email already exists
     existing_user = (
         db.query(User)
         .filter(
@@ -403,28 +383,17 @@ def signup(
     )
 
     if existing_user:
-        if not existing_user.email_verified:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=(
-                    "This email is already registered "
-                    "but has not been verified."
-                ),
-            )
-
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered.",
         )
 
-    verification_token = create_verification_token()
-
-    verification_expiry = (
-        datetime.now(timezone.utc)
-        + timedelta(
-            minutes=VERIFICATION_TOKEN_EXPIRE_MINUTES
-        )
-    )
+    # ==========================================
+    # CREATE ACCOUNT DIRECTLY
+    #
+    # Email verification has been removed.
+    # Users can log in immediately after signup.
+    # ==========================================
 
     user = User(
         name=name,
@@ -433,44 +402,21 @@ def signup(
             data.password
         ),
         role="user",
-        email_verified=False,
-        verification_token=verification_token,
-        verification_token_expires=verification_expiry,
+
+        # Email verification is no longer required
+        email_verified=True,
+
+        # No verification token required
+        verification_token=None,
+        verification_token_expires=None,
     )
 
     db.add(user)
     db.commit()
     db.refresh(user)
 
-    try:
-        send_verification_email(
-            recipient_email=user.email,
-            recipient_name=user.name,
-            verification_token=verification_token,
-        )
-
-    except Exception as error:
-        print(
-            "Failed to send verification email:",
-            error,
-        )
-
-        db.delete(user)
-        db.commit()
-
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=(
-                "Account could not be created because "
-                "the verification email could not be sent."
-            ),
-        )
-
     return {
-        "message": (
-            "Account created successfully. "
-            "Please check your email to verify your account."
-        ),
+        "message": "Account created successfully. You can now log in.",
         "user": {
             "id": user.id,
             "name": user.name,
@@ -480,6 +426,15 @@ def signup(
         },
     }
 
+
+# ==========================================
+# EMAIL VERIFICATION ENDPOINT
+# ==========================================
+#
+# Kept for compatibility with existing
+# frontend routes/links, but verification
+# is no longer required for new accounts.
+#
 
 @router.get("/verify-email")
 def verify_email(
@@ -525,8 +480,7 @@ def verify_email(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=(
-                "Verification link has expired. "
-                "Please request a new verification email."
+                "Verification link has expired."
             ),
         )
 
@@ -545,6 +499,10 @@ def verify_email(
     }
 
 
+# ==========================================
+# LOGIN
+# ==========================================
+
 @router.post("/login")
 def login(
     data: LoginRequest,
@@ -562,6 +520,7 @@ def login(
             .lower()
         )
 
+    # Find user
     user = (
         db.query(User)
         .filter(
@@ -576,6 +535,7 @@ def login(
             detail="Invalid email or password.",
         )
 
+    # Verify password
     if not verify_password(
         data.password,
         user.password_hash,
@@ -585,14 +545,23 @@ def login(
             detail="Invalid email or password.",
         )
 
-    if not user.email_verified:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=(
-                "Please verify your email before logging in."
-            ),
-        )
+    # ==========================================
+    # EMAIL VERIFICATION CHECK REMOVED
+    #
+    # Users can now log in immediately.
+    # ==========================================
 
+    # Automatically mark old accounts as verified
+    # so existing accounts are not blocked.
+    if not user.email_verified:
+        user.email_verified = True
+        user.verification_token = None
+        user.verification_token_expires = None
+
+        db.commit()
+        db.refresh(user)
+
+    # Create JWT
     access_token = create_access_token(
         user.id
     )
@@ -610,6 +579,10 @@ def login(
         },
     }
 
+
+# ==========================================
+# FORGOT PASSWORD
+# ==========================================
 
 @router.post("/forgot-password")
 def forgot_password(
@@ -638,11 +611,8 @@ def forgot_password(
             "message": generic_message
         }
 
-    if not user.email_verified:
-        return {
-            "message": generic_message
-        }
-
+    # Email verification is no longer required.
+    # Any existing account can request a reset.
     reset_token = create_password_reset_token()
 
     reset_expiry = (
@@ -687,6 +657,10 @@ def forgot_password(
         "message": generic_message
     }
 
+
+# ==========================================
+# RESET PASSWORD
+# ==========================================
 
 @router.post("/reset-password")
 def reset_password(
@@ -737,10 +711,12 @@ def reset_password(
             detail="Password reset link has expired.",
         )
 
+    # Update password
     user.password_hash = hash_password(
         data.new_password
     )
 
+    # Remove used reset token
     user.password_reset_token = None
     user.password_reset_token_expires = None
 
