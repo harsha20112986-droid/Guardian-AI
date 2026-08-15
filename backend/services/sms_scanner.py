@@ -5,6 +5,10 @@ from sqlalchemy.orm import Session
 from ml.predict import predict_url
 from models import ScanHistory
 
+from services.notification_service import (
+    create_scan_notification,
+)
+
 
 SCAM_KEYWORDS = [
     "winner",
@@ -165,7 +169,20 @@ def scan_sms(
     )
 
     db.add(history)
+
+    db.flush()
+
+    create_scan_notification(
+        db=db,
+        user_id=user_id,
+        scan_type="SMS",
+        prediction=prediction,
+        risk_level=risk,
+        score=float(score),
+    )
+
     db.commit()
+
     db.refresh(history)
 
     return {

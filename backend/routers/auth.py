@@ -27,7 +27,18 @@ from models import User
 # LOAD ENVIRONMENT VARIABLES
 # ==========================================
 
-load_dotenv()
+BASE_DIR = os.path.dirname(
+    os.path.dirname(
+        os.path.abspath(__file__)
+    )
+)
+
+ENV_FILE = os.path.join(
+    BASE_DIR,
+    ".env",
+)
+
+load_dotenv(ENV_FILE)
 
 
 # ==========================================
@@ -44,7 +55,9 @@ router = APIRouter(
 # CONFIGURATION
 # ==========================================
 
-SECRET_KEY = os.getenv("GUARDIAN_SECRET_KEY")
+SECRET_KEY = os.getenv(
+    "GUARDIAN_SECRET_KEY"
+)
 
 if not SECRET_KEY:
     raise RuntimeError(
@@ -193,7 +206,9 @@ def send_password_reset_email(
 
     message = EmailMessage()
 
-    message["Subject"] = "Reset your Guardian AI password"
+    message["Subject"] = (
+        "Reset your Guardian AI password"
+    )
 
     message["From"] = (
         f"Guardian AI Security Team <{GMAIL_ADDRESS}>"

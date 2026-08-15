@@ -88,6 +88,12 @@ class User(Base):
         cascade="all, delete-orphan",
     )
 
+    notifications = relationship(
+        "Notification",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
 
 class ScanHistory(Base):
     __tablename__ = "scan_history"
@@ -149,4 +155,61 @@ class ScanHistory(Base):
     user = relationship(
         "User",
         back_populates="scans",
+    )
+
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True,
+    )
+
+    user_id = Column(
+        Integer,
+        ForeignKey("users.id"),
+        nullable=False,
+        index=True,
+    )
+
+    title = Column(
+        String,
+        nullable=False,
+    )
+
+    message = Column(
+        Text,
+        nullable=False,
+    )
+
+    notification_type = Column(
+        String,
+        default="security",
+        nullable=False,
+    )
+
+    severity = Column(
+        String,
+        default="info",
+        nullable=False,
+    )
+
+    is_read = Column(
+        Boolean,
+        default=False,
+        nullable=False,
+        index=True,
+    )
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        index=True,
+    )
+
+    user = relationship(
+        "User",
+        back_populates="notifications",
     )

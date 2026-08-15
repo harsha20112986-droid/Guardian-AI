@@ -5,6 +5,10 @@ from sqlalchemy.orm import Session
 from ml.predict import predict_url
 from models import ScanHistory
 
+from services.notification_service import (
+    create_scan_notification,
+)
+
 
 def scan_url(
     url: str,
@@ -29,7 +33,20 @@ def scan_url(
     )
 
     db.add(history)
+
+    db.flush()
+
+    create_scan_notification(
+        db=db,
+        user_id=user_id,
+        scan_type=scan_type,
+        prediction=result.get("prediction"),
+        risk_level=result.get("risk_level"),
+        score=result.get("final_score", 0),
+    )
+
     db.commit()
+
     db.refresh(history)
 
     return result
