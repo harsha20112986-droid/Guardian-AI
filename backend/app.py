@@ -14,6 +14,7 @@ from routers.sms import router as sms_router
 from routers.auth import router as auth_router
 from routers.admin import router as admin_router
 from routers.notifications import router as notifications_router
+from routers.assistant import router as assistant_router
 
 
 # ==========================================
@@ -83,6 +84,7 @@ app.include_router(sms_router)
 app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(notifications_router)
+app.include_router(assistant_router)
 
 
 # ==========================================
