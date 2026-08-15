@@ -2,18 +2,25 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 function AdminRoute() {
-  const { user, loading, isAuthenticated } = useAuth();
+  const {
+    user,
+    loading,
+    isAuthenticated,
+  } = useAuth();
+
   const location = useLocation();
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-[#F7F9F8] flex items-center justify-center px-6">
         <div className="text-center">
-          <div className="w-10 h-10 mx-auto rounded-full border-4 border-slate-700 border-t-emerald-400 animate-spin" />
 
-          <p className="text-gray-400 mt-4">
-            Checking admin access...
+          <div className="w-12 h-12 mx-auto rounded-full border-4 border-[#DCE8E1] border-t-[#159A62] animate-spin" />
+
+          <p className="text-[#52605A] mt-4 text-sm font-medium">
+            Checking administrator access...
           </p>
+
         </div>
       </div>
     );
@@ -24,12 +31,14 @@ function AdminRoute() {
       <Navigate
         to="/login"
         replace
-        state={{ from: location }}
+        state={{
+          from: location,
+        }}
       />
     );
   }
 
-  if (user?.role !== "admin") {
+  if (!user || user.role !== "admin") {
     return (
       <Navigate
         to="/"
