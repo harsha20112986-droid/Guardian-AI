@@ -5,16 +5,16 @@ from fastapi import (
     Depends,
     HTTPException,
 )
+
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from database import get_db
 from models import User
 from routers.auth import get_current_user
+from rate_limit import rate_limit
 
-from services.ai_chatbot import (
-    generate_response,
-)
+from services.ai_chatbot import generate_response
 
 
 router = APIRouter(
@@ -23,13 +23,18 @@ router = APIRouter(
 )
 
 
-# ==========================================
-# REQUEST SCHEMAS
-# ==========================================
-
 class ChatMessage(BaseModel):
-    role: str
-    content: str
+    role: str = Field(
+        ...,
+        min_length=1,
+        max_length=20,
+    )
+
+    content: str = Field(
+        ...,
+        min_length=1,
+        max_length=4000,
+    )
 
 
 class AssistantRequest(BaseModel):
@@ -44,11 +49,18 @@ class AssistantRequest(BaseModel):
     ] = None
 
 
-# ==========================================
-# CHAT ENDPOINT
-# ==========================================
-
-@router.post("/chat")
+@router.post(
+    "/chat",
+    dependencies=[
+        Depends(
+            rate_limit(
+                limit=20,
+                window_seconds=60,
+                name="assistant-chat",
+            )
+        )
+    ],
+)
 def assistant_chat(
     request: AssistantRequest,
     current_user: User = Depends(
@@ -65,7 +77,7 @@ def assistant_chat(
                     "role": item.role,
                     "content": item.content,
                 }
-                for item in request.conversation_history
+                for item in request.conversation_history[-10:]
             ]
 
         response = generate_response(

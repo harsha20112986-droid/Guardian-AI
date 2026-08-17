@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from rate_limit import rate_limit
 
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -356,7 +357,18 @@ def get_current_admin(
 # SIGNUP
 # ==========================================
 
-@router.post("/signup")
+@router.post(
+    "/signup",
+    dependencies=[
+        Depends(
+            rate_limit(
+                limit=5,
+                window_seconds=60,
+                name="signup",
+            )
+        )
+    ],
+)
 def signup(
     data: SignupRequest,
     db: Session = Depends(get_db),
@@ -518,7 +530,18 @@ def verify_email(
 # LOGIN
 # ==========================================
 
-@router.post("/login")
+@router.post(
+    "/login",
+    dependencies=[
+        Depends(
+            rate_limit(
+                limit=5,
+                window_seconds=60,
+                name="login",
+            )
+        )
+    ],
+)
 def login(
     data: LoginRequest,
     db: Session = Depends(get_db),
@@ -599,7 +622,18 @@ def login(
 # FORGOT PASSWORD
 # ==========================================
 
-@router.post("/forgot-password")
+@router.post(
+    "/forgot-password",
+    dependencies=[
+        Depends(
+            rate_limit(
+                limit=3,
+                window_seconds=600,
+                name="forgot-password",
+            )
+        )
+    ],
+)
 def forgot_password(
     data: ForgotPasswordRequest,
     db: Session = Depends(get_db),
@@ -677,7 +711,18 @@ def forgot_password(
 # RESET PASSWORD
 # ==========================================
 
-@router.post("/reset-password")
+@router.post(
+    "/reset-password",
+    dependencies=[
+        Depends(
+            rate_limit(
+                limit=5,
+                window_seconds=600,
+                name="reset-password",
+            )
+        )
+    ],
+)
 def reset_password(
     data: ResetPasswordRequest,
     db: Session = Depends(get_db),
