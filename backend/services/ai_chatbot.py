@@ -5,213 +5,103 @@ from typing import Optional
 from dotenv import load_dotenv
 from google import genai
 
-
-# ==========================================
-# LOAD ENVIRONMENT VARIABLES
-# ==========================================
-
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 ENV_FILE = BASE_DIR / ".env"
 
-load_dotenv(
-    dotenv_path=ENV_FILE
-)
+load_dotenv(dotenv_path=ENV_FILE)
 
-
-# ==========================================
-# GEMINI CONFIGURATION
-# ==========================================
-
-GEMINI_API_KEY = os.getenv(
-    "GEMINI_API_KEY"
-)
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 if not GEMINI_API_KEY:
     raise RuntimeError(
         "GEMINI_API_KEY is missing from the backend .env file."
     )
 
+GEMINI_MODEL = "gemini-3.5-flash-lite"
 
-GEMINI_MODEL = "gemini-3.6-flash"
-
-client = genai.Client(
-    api_key=GEMINI_API_KEY
-)
-
-
-# ==========================================
-# GUARDIAN AI SYSTEM INSTRUCTIONS
-# ==========================================
+client = genai.Client(api_key=GEMINI_API_KEY)
 
 SYSTEM_INSTRUCTIONS = """
-You are Guardian AI Assistant, a cybersecurity and
-digital-safety assistant built specifically for the
-Guardian AI platform.
+You are Guardian AI Assistant, a cybersecurity and digital-safety assistant.
 
-Your primary purpose is to help users understand and
-protect themselves from:
+Help users understand and protect themselves from phishing, scam messages,
+malicious URLs, QR-code scams, online fraud, fake offers, account takeover,
+suspicious emails, password threats, social engineering, identity risks,
+and privacy risks.
 
-- Phishing websites
-- Scam messages and SMS
-- Malicious URLs
-- QR-code scams
-- Online fraud
-- Fake offers and lottery scams
-- Account takeover attempts
-- Suspicious emails and messages
-- Password and account-security threats
-- Social-engineering attacks
-- Identity and privacy risks
+Give clear, practical, concise answers.
 
-IMPORTANT BEHAVIOR:
+Never encourage clicking suspicious links, sharing passwords, OTPs,
+authentication codes, API keys, private keys, or disabling security
+protections.
 
-1. Give clear, practical and easy-to-understand answers.
+If a user clicked a suspicious link, provide damage-control steps such as
+changing compromised passwords through the legitimate website, enabling MFA,
+checking account activity, and contacting the relevant organization.
 
-2. When discussing a suspicious message, URL, QR code,
-   or online activity, explain the warning signs and
-   recommend safe actions.
+Distinguish between safe, suspicious, and high-risk situations.
 
-3. Never encourage a user to click a suspicious link,
-   provide credentials, share OTPs, disable security
-   protections, or perform unsafe actions.
+Never claim to have scanned or verified something unless Guardian AI
+actually provides scan information.
 
-4. Never ask users to provide passwords, OTPs,
-   authentication codes, API keys, private keys,
-   or other sensitive credentials.
+Do not invent scan results, scores, URLs, domains, or technical evidence.
 
-5. If a user reports that they clicked a suspicious
-   link, focus on damage-control steps such as:
-   disconnecting from the suspicious site,
-   changing compromised passwords from the legitimate
-   website, enabling MFA, checking account activity,
-   and contacting the relevant organization.
+If uncertain, say so.
 
-6. Clearly distinguish between:
-   - Safe
-   - Suspicious
-   - High-risk / dangerous
+Do not provide instructions for hacking, credential theft, malware deployment,
+evasion, or unauthorized access. Redirect such requests toward defensive
+cybersecurity practices.
 
-7. Do not claim that you have scanned or verified a URL
-   unless Guardian AI actually provides scan information
-   to you.
-
-8. If the user provides Guardian AI scan results,
-   explain those results in simple language.
-
-9. Do not invent security findings, scan scores,
-   URLs, domains, or technical evidence.
-
-10. If you are uncertain, say so rather than making
-    unsupported claims.
-
-11. Keep answers concise but useful. Use bullet points
-    when they make the answer easier to understand.
-
-12. You are a cybersecurity assistant, not a replacement
-    for law enforcement, financial institutions,
-    cybersecurity professionals, or emergency services.
-
-13. Do not provide instructions for hacking, credential
-    theft, malware deployment, evasion, or unauthorized
-    access. Redirect such requests toward defensive and
-    legitimate cybersecurity practices.
-
-Always prioritize user safety.
+Keep responses concise and useful.
 """
-
-
-# ==========================================
-# GENERATE ASSISTANT RESPONSE
-# ==========================================
 
 def generate_response(
     message: str,
     conversation_history: Optional[list] = None,
 ) -> str:
-    """
-    Generate a Guardian AI security-focused response.
-
-    conversation_history should contain previous
-    messages in this format:
-
-    [
-        {
-            "role": "user",
-            "content": "What is phishing?"
-        },
-        {
-            "role": "assistant",
-            "content": "Phishing is..."
-        }
-    ]
-    """
-
     message = (message or "").strip()
 
     if not message:
-        raise ValueError(
-            "Assistant message cannot be empty."
-        )
+        raise ValueError("Assistant message cannot be empty.")
 
     if len(message) > 4000:
         raise ValueError(
-            "Assistant message is too long. "
-            "Please keep it below 4000 characters."
+            "Assistant message is too long. Please keep it below 4000 characters."
         )
 
-    conversation_history = (
-        conversation_history or []
-    )
+    conversation_history = conversation_history or []
 
-    # ==========================================
-    # BUILD CONVERSATION CONTEXT
-    # ==========================================
+    history = []
 
-    conversation_parts = [
-        SYSTEM_INSTRUCTIONS.strip()
-    ]
-
-    for item in conversation_history[-10:]:
+    for item in conversation_history[-4:]:
         if not isinstance(item, dict):
             continue
 
-        role = str(
-            item.get("role", "")
-        ).strip().lower()
-
-        content = str(
-            item.get("content", "")
-        ).strip()
+        role = str(item.get("role", "")).strip().lower()
+        content = str(item.get("content", "")).strip()
 
         if not content:
             continue
 
         if role == "user":
-            conversation_parts.append(
-                f"User: {content}"
-            )
-
+            history.append(f"User: {content}")
         elif role == "assistant":
-            conversation_parts.append(
-                f"Guardian AI Assistant: {content}"
-            )
+            history.append(f"Guardian AI: {content}")
 
-    conversation_parts.append(
-        f"User: {message}"
-    )
-
-    conversation_parts.append(
-        "Guardian AI Assistant:"
-    )
-
-    prompt = "\n\n".join(
-        conversation_parts
-    )
-
-    # ==========================================
-    # CALL GEMINI
-    # ==========================================
+    if history:
+        prompt = (
+            f"{SYSTEM_INSTRUCTIONS}\n\n"
+            f"Recent conversation:\n"
+            f"{chr(10).join(history)}\n\n"
+            f"User: {message}\n\n"
+            f"Guardian AI:"
+        )
+    else:
+        prompt = (
+            f"{SYSTEM_INSTRUCTIONS}\n\n"
+            f"User: {message}\n\n"
+            f"Guardian AI:"
+        )
 
     try:
         interaction = client.interactions.create(
@@ -220,12 +110,7 @@ def generate_response(
         )
 
         response_text = (
-            getattr(
-                interaction,
-                "output_text",
-                None,
-            )
-            or ""
+            getattr(interaction, "output_text", None) or ""
         ).strip()
 
         if not response_text:
@@ -236,12 +121,8 @@ def generate_response(
         return response_text
 
     except Exception as error:
-        print(
-            "Guardian AI Gemini error:",
-            error,
-        )
+        print("Guardian AI Gemini error:", error)
 
         raise RuntimeError(
-            "The AI Assistant is temporarily "
-            "unavailable. Please try again."
+            "The AI Assistant is temporarily unavailable. Please try again."
         ) from error
