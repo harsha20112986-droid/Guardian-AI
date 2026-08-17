@@ -7,7 +7,6 @@ const api = axios.create({
   },
 });
 
-// Attach JWT to every request
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("access_token");
@@ -21,21 +20,17 @@ api.interceptors.request.use(
 
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Handle unauthorized requests
 api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("token_type");
-      localStorage.removeItem("guardian_user");
+      console.error(
+        "Authentication failed:",
+        error.config?.url
+      );
 
       const currentPath = window.location.pathname;
 
@@ -43,6 +38,10 @@ api.interceptors.response.use(
         currentPath !== "/login" &&
         currentPath !== "/signup"
       ) {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("token_type");
+        localStorage.removeItem("guardian_user");
+
         window.location.href = "/login";
       }
     }

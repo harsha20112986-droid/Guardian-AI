@@ -16,6 +16,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import UrlScanner from "./pages/UrlScanner";
 import QRScanner from "./pages/QRScanner";
 import SMSScanner from "./pages/SMSScanner";
+import Assistant from "./pages/Assistant";
 import Analytics from "./pages/Analytics";
 import History from "./pages/History";
 import About from "./pages/About";
@@ -105,6 +106,15 @@ function App() {
             element={
               <Layout>
                 <SMSScanner />
+              </Layout>
+            }
+          />
+
+          <Route
+            path="/assistant"
+            element={
+              <Layout>
+                <Assistant />
               </Layout>
             }
           />
