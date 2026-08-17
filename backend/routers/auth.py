@@ -394,10 +394,10 @@ def signup(
         )
 
     # Validate password
-    if len(data.password) < 8:
+    if len(data.password) < 12:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Password must contain at least 8 characters.",
+            detail="Password must contain at least 12 characters.",
         )
 
     # Check whether email already exists
@@ -727,10 +727,10 @@ def reset_password(
     data: ResetPasswordRequest,
     db: Session = Depends(get_db),
 ):
-    if len(data.new_password) < 8:
+    if len(data.new_password) < 12:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Password must contain at least 8 characters.",
+            detail="Password must contain at least 12 characters.",
         )
 
     user = (
