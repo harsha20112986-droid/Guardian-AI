@@ -74,7 +74,7 @@ def scan_sms(
     )
 
     url_result = None
-    url_confidence = None
+    url_confidence = 0.0
 
     if urls:
         reasons.append(
@@ -93,22 +93,43 @@ def scan_sms(
                 )
             )
 
-            if (
-                url_result.get("prediction")
-                == "Phishing"
-            ):
-                score += 35
+            url_prediction = url_result.get(
+                "prediction"
+            )
+
+            url_score = float(
+                url_result.get(
+                    "final_score",
+                    0,
+                )
+            )
+
+            if url_prediction == "Phishing":
+                score = max(
+                    score + 35,
+                    70,
+                )
 
                 reasons.append(
                     "Embedded URL was detected as phishing."
                 )
 
-            elif (
-                url_result.get("prediction")
-                == "Legitimate"
-            ):
+            elif url_prediction == "Legitimate":
                 reasons.append(
                     "Embedded URL was classified as legitimate."
+                )
+
+                if url_result.get(
+                    "trusted_domain"
+                ):
+                    reasons.append(
+                        "Embedded URL belongs to a trusted domain."
+                    )
+
+            if url_score >= 75:
+                score = max(
+                    score,
+                    75,
                 )
 
         except Exception as error:
@@ -144,16 +165,9 @@ def scan_sms(
         else "Phishing"
     )
 
-    confidence = (
-        round(
-            max(
-                float(score),
-                url_confidence or 0,
-            ),
-            2,
-        )
-        if score > 0 or url_confidence
-        else 0.0
+    confidence = round(
+        float(score),
+        2,
     )
 
     history = ScanHistory(
